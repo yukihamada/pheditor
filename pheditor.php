@@ -43,7 +43,7 @@ function files($dir, $display = 'block') {
 		if (is_dir($dir . DIRECTORY_SEPARATOR . $file))
 			$data .= '<li class="dir"><a href="javascript:void(0);" onclick="return expandDir(this);">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
 		else {
-			$is_editable = in_array(substr($file, strrpos($file, '.') + 1), $formats);
+			$is_editable = strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
 			$data .= '<li class="file ' . ($is_editable ? 'editable' : null) . '">';
 
