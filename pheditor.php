@@ -252,7 +252,7 @@ window.onload = function() {
 <body>
 
 <div id="top">
-	<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank">Pheditor</a></h1>
+	<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor">Pheditor</a></h1>
 	<ul class="menu">
 		<li><button id="close" onclick="return closeFile();" disabled>Close</button></li>
 		<li><button id="save" onclick="return saveFile();" disabled>Save</button></li>
