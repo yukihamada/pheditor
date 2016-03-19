@@ -80,6 +80,7 @@ function br2nl($string) {
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pheditor</title>
 <style type="text/css">
 body {
@@ -152,6 +153,19 @@ ul.files li {
 ul.files li.dir:before { content: "+"; margin-right: 5px; }
 ul.files li.file { margin-left: 15px; cursor: default; }
 ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
+
+@media screen and (max-width: 1000px) {
+	#sidebar {
+		width: auto;
+		float: none;
+	}
+
+	#editor {
+		width: auto;
+		float: none;
+		border-top: 1px dotted #ccc;
+	}
+}
 
 </style>
 <script type="text/javascript">
@@ -239,8 +253,14 @@ function editorChange() {
 
 window.onload = function() {
 	window.onresize = function() {
-		id("sidebar").style.height = (window.innerHeight - id("top").clientHeight - 5) + "px";
-		id("editor").style.height = (window.innerHeight - 25 - id("top").clientHeight) + "px";
+		if (window.innerWidth <= 1000) {
+			id("sidebar").style.height = "";
+			id("editor").style.height = "";
+			id("editor").style.minHeight = "100px";
+		} else {
+			id("sidebar").style.height = (window.innerHeight - id("top").clientHeight - 5) + "px";
+			id("editor").style.height = (window.innerHeight - 25 - id("top").clientHeight) + "px";
+		}
 	}
 
 	window.onresize();
