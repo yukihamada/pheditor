@@ -2,7 +2,7 @@
 
 /*
  * Pheditor
- * online PHP file editor
+ * PHP file editor
  * Hamid Samak
  * https://github.com/hamidsamak/pheditor
  * Release under MIT license
