@@ -23,6 +23,10 @@ if (isset($_POST['action'])) {
 				echo br2nl(highlight_string(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']), true));
 			}
 			break;
+
+		case 'reload':
+			echo files(__DIR__);
+			break;
 	}
 
 	exit;
@@ -198,12 +202,25 @@ function saveFile() {
 				editor.innerHTML = xhttp.responseText;
 
 				id("save").setAttribute("disabled", "");
+				reloadFiles();
 			}
 		}
 		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send("action=save&file=" + encodeURIComponent(file) + "&data=" + encodeURIComponent(editor.textContent));
 	}
+}
+
+function reloadFiles() {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4 && xhttp.status == 200) {
+			id("sidebar").innerHTML = xhttp.responseText;
+		}
+	}
+	xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send("action=reload");
 }
 
 function closeFile() {
