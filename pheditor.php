@@ -244,6 +244,7 @@ window.onload = function() {
 	}
 
 	window.onresize();
+	
 	id("save").setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
 }
