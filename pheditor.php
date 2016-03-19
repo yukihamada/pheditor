@@ -233,7 +233,7 @@ function closeFile() {
 	id("close").setAttribute("disabled", "");
 }
 
-function checkStatus() {
+function editorChange() {
 	id("save").removeAttribute("disabled");
 }
 
@@ -244,7 +244,7 @@ window.onload = function() {
 	}
 
 	window.onresize();
-	
+
 	id("save").setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
 }
@@ -263,7 +263,7 @@ window.onload = function() {
 
 <div>
 	<div id="sidebar"><?=files(__DIR__)?></div>
-	<div id="editor" data-file="" contenteditable="true" onkeyup="return checkStatus();"></div>
+	<div id="editor" data-file="" contenteditable="true" onkeyup="return editorChange();"></div>
 </div>
 
 </body>
