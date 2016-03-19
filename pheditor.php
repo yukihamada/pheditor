@@ -18,7 +18,7 @@ if (isset($_POST['action'])) {
 			break;
 
 		case 'save':
-			if (isset($_POST['file']) && file_exists(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']) && isset($_POST['data'])) {
+			if (isset($_POST['file']) && isset($_POST['data'])) {
 				file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file'], $_POST['data']);
 				echo br2nl(highlight_string(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']), true));
 			}
@@ -184,20 +184,26 @@ function openFile(element) {
 
 function saveFile() {
 	var editor = id("editor");
-	
-	editor.innerHTML = editor.innerHTML.replace(/<br(\s*)\/*>/ig, "\n");
-	
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (xhttp.readyState == 4 && xhttp.status == 200) {
-			editor.innerHTML = xhttp.responseText;
+	var file = editor.getAttribute("data-file");
 
-			id("save").setAttribute("disabled", "");
+	editor.innerHTML = editor.innerHTML.replace(/<br(\s*)\/*>/ig, "\n");
+
+	if (file.length < 1)
+		file = prompt("Please enter file name with full path", "new-file.php");
+
+	if (file.length > 0) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4 && xhttp.status == 200) {
+				editor.innerHTML = xhttp.responseText;
+
+				id("save").setAttribute("disabled", "");
+			}
 		}
+		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send("action=save&file=" + encodeURIComponent(file) + "&data=" + encodeURIComponent(editor.textContent));
 	}
-	xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send("action=save&file=" + encodeURIComponent(editor.getAttribute("data-file")) + "&data=" + encodeURIComponent(editor.textContent));
 }
 
 function closeFile() {
