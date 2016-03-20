@@ -99,9 +99,8 @@ a:hover {
 }
 
 h1 {
-	margin: 0;
 	padding: 0;
-	float: left;
+	margin: 10px;
 }
 
 h1 a {
@@ -109,8 +108,22 @@ h1 a {
 }
 
 #top {
-	padding: 10px;
 	border-bottom: 1px dotted #ccc;
+}
+
+header {
+	width: 20%;
+	float: left;
+}
+
+nav {
+	width: 80%;
+	float: right;
+}
+
+#status {
+	float: left;
+	margin-top: 15px;
 }
 
 #sidebar {
@@ -130,19 +143,18 @@ h1 a {
 ul.menu {
 	margin: 0;
 	padding: 0;
-	float: right;
 }
 
 ul.menu li {
 	margin: 0;
-	padding: 0 0 0 10px;
 	float: right;
 	list-style-type: none;
+	padding: 10px 10px 0 0;
 }
 
 ul.files {
-	margin: 10px 30px 0 30px;
 	padding: 0;
+	margin: 10px 30px 0 30px;
 }
 
 ul.files li {
@@ -151,7 +163,7 @@ ul.files li {
 }
 
 ul.files li.dir:before { content: "+"; margin-right: 5px; }
-ul.files li.file { margin-left: 15px; cursor: default; }
+ul.files li.file { cursor: default; margin-left: 15px; }
 ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
 
 @media screen and (max-width: 1000px) {
@@ -183,21 +195,25 @@ function expandDir(element) {
 }
 
 function openFile(element) {
+	var file = element.getAttribute("data-file");
+
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4 && xhttp.status == 200) {
 			var editor = id("editor");
 
 			editor.innerHTML = xhttp.responseText;
-			editor.setAttribute("data-file", element.getAttribute("data-file"));
+			editor.setAttribute("data-file", file);
 
 			id("save").setAttribute("disabled", "");
 			id("close").removeAttribute("disabled");
+
+			id("status").innerHTML = file;
 		}
 	}
 	xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send("action=open&file=" + encodeURIComponent(element.getAttribute("data-file")));
+	xhttp.send("action=open&file=" + encodeURIComponent(file));
 }
 
 function saveFile() {
@@ -245,6 +261,8 @@ function closeFile() {
 
 	id("save").setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
+
+	id("status").innerHTML = "";
 }
 
 function editorChange() {
@@ -273,11 +291,19 @@ window.onload = function() {
 <body>
 
 <div id="top">
-	<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor">Pheditor</a></h1>
-	<ul class="menu">
-		<li><button id="close" onclick="return closeFile();" disabled>Close</button></li>
-		<li><button id="save" onclick="return saveFile();" disabled>Save</button></li>
-	</ul>
+	<header>
+		<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor">Pheditor</a></h1>
+	</header>
+
+	<nav>
+		<div id="status"></div>
+
+		<ul class="menu">
+			<li><button id="close" onclick="return closeFile();" disabled>Close</button></li>
+			<li><button id="save" onclick="return saveFile();" disabled>Save</button></li>
+		</ul>
+	</nav>
+
 	<div style="clear:both"></div>
 </div>
 
