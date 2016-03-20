@@ -8,7 +8,7 @@
  * Release under MIT license
  */
 
-define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml');
+define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md');
 
 if (isset($_POST['action'])) {
 	switch ($_POST['action']) {
