@@ -179,7 +179,6 @@ ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
 		border-top: 1px dotted #ccc;
 	}
 }
-
 </style>
 <script type="text/javascript">
 function id(id) {
