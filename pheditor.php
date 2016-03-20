@@ -167,6 +167,10 @@ ul.files li.file { cursor: default; margin-left: 15px; }
 ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
 
 @media screen and (max-width: 1000px) {
+	#status {
+		margin-left: 10px;
+	}
+
 	#sidebar {
 		width: auto;
 		float: none;
