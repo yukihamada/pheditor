@@ -8,7 +8,28 @@
  * Release under MIT license
  */
 
+define('PASSWORD', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec');
 define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md');
+
+session_start();
+
+if (isset($_SESSION['pheditor_admin']) === false || $_SESSION['pheditor_admin'] !== true) {
+	if (isset($_POST['pheditor_password']))
+		if (hash('sha512', $_POST['pheditor_password']) === PASSWORD) {
+			$_SESSION['pheditor_admin'] = true;
+
+			redirect();
+		} else
+			$error = 'The entry password is not correct.';
+
+	die('<title>Pheditor</title><form method="post"><div style="text-align:center"><h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor" style="color:#444;text-decoration:none" tabindex="3">Pheditor</a></h1>' . (isset($error) ? '<p style="color:#dd0000">' . $error . '</p>' : null) . '<input name="pheditor_password" type="password" value="" placeholder="Password&hellip;" tabindex="1"><br><br><input type="submit" value="Login" tabindex="2"></div></form>');
+}
+
+if (isset($_GET['logout'])) {
+	unset($_SESSION['pheditor_admin']);
+
+	redirect();
+}
 
 if (isset($_POST['action'])) {
 	switch ($_POST['action']) {
@@ -26,6 +47,23 @@ if (isset($_POST['action'])) {
 
 		case 'reload':
 			echo files(__DIR__);
+			break;
+
+		case 'password':
+			if (isset($_POST['password']) && empty($_POST['password']) === false) {
+				$contents = file(__FILE__);
+
+				foreach ($contents as $key => $line)
+					if (strpos($line, 'define(\'PASSWORD\'') !== false) {
+						$contents[$key] = "define('PASSWORD', '" . hash('sha512', $_POST['password']) . "');\n";
+
+						break;
+					}
+
+				file_put_contents(__FILE__, implode($contents));
+
+				echo 'Password changed successfully.';
+			}
 			break;
 	}
 
@@ -75,6 +113,14 @@ function br2nl($string) {
 	return $string;
 }
 
+function redirect($address = null) {
+	if (empty($address))
+		$address = $_SERVER['PHP_SELF'];
+
+	header('Location: ' . $address);
+	exit;
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -101,6 +147,7 @@ a:hover {
 h1 {
 	padding: 0;
 	margin: 10px;
+	display: inline-block;
 }
 
 h1 a {
@@ -273,6 +320,21 @@ function editorChange() {
 	id("save").removeAttribute("disabled");
 }
 
+function changePassword() {
+	var password = prompt("Please enter new password:");
+
+	if (password.length > 0) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4 && xhttp.status == 200)
+				alert(xhttp.responseText);
+		}
+		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send("action=password&password=" + password);
+	}
+}
+
 window.onload = function() {
 	window.onresize = function() {
 		if (window.innerWidth <= 1000) {
@@ -296,7 +358,7 @@ window.onload = function() {
 
 <div id="top">
 	<header>
-		<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor">Pheditor</a></h1>
+		<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor">Pheditor</a></h1><span><a href="javascript:void(0);" onclick="return changePassword();">[Password]</a> &nbsp; <a href="<?=$_SERVER['PHP_SELF']?>?logout=1">[Logout]</a></span>
 	</header>
 
 	<nav>
