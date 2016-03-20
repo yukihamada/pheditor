@@ -175,6 +175,7 @@ ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
 	#editor {
 		width: auto;
 		float: none;
+		border-left: 0;
 		border-top: 1px dotted #ccc;
 	}
 }
