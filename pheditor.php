@@ -352,6 +352,19 @@ window.onload = function() {
 	id("save").setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
 }
+
+document.onkeydown = function(event) {
+	if (event.ctrlKey == true)
+		if (event.keyCode == 83) {
+			event.preventDefault();
+
+			id("save").click();
+		} else if (event.keyCode == 87) {
+			event.preventDefault();
+
+			id("close").click();
+		}
+}
 </script>
 </head>
 <body>
