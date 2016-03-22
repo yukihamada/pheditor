@@ -276,7 +276,7 @@ function saveFile() {
 	if (file.length < 1)
 		file = prompt("Please enter file name with full path", "new-file.php");
 
-	if (file.length > 0) {
+	if (file != null && file.length > 0) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -323,7 +323,7 @@ function editorChange() {
 function changePassword() {
 	var password = prompt("Please enter new password:");
 
-	if (password.length > 0) {
+	if (password != null && password.length > 0) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (xhttp.readyState == 4 && xhttp.status == 200)
