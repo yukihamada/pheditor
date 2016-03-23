@@ -10,6 +10,24 @@
 
 define('PASSWORD', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec');
 define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md');
+define('LOG_FILE', __DIR__ . DIRECTORY_SEPARATOR . '.phedlog');
+
+if (file_exists(LOG_FILE)) {
+	$log = unserialize(file_get_contents(LOG_FILE));
+
+	if (isset($log[$_SERVER['REMOTE_ADDR']]) && $log[$_SERVER['REMOTE_ADDR']]['num'] > 3 && time() - $log[$_SERVER['REMOTE_ADDR']]['time'] < 86400)
+		die('This IP address is blocked due to unsuccessful login attempts.');
+
+	foreach ($log as $key => $value)
+		if (time() - $value['time'] > 86400) {
+			unset($log[$key]);
+
+			$log_updated = true;
+		}
+
+	if (isset($log_updated))
+		file_put_contents(LOG_FILE, serialize($log));
+}
 
 session_start();
 
@@ -19,8 +37,19 @@ if (isset($_SESSION['pheditor_admin']) === false || $_SESSION['pheditor_admin'] 
 			$_SESSION['pheditor_admin'] = true;
 
 			redirect();
-		} else
+		} else {
 			$error = 'The entry password is not correct.';
+
+			$log = file_exists(LOG_FILE) ? unserialize(file_get_contents(LOG_FILE)) : array();
+
+			if (isset($log[$_SERVER['REMOTE_ADDR']]) === false)
+				$log[$_SERVER['REMOTE_ADDR']] = array('num' => 0, 'time' => 0);
+
+			$log[$_SERVER['REMOTE_ADDR']]['num'] += 1;
+			$log[$_SERVER['REMOTE_ADDR']]['time'] = time();
+
+			file_put_contents(LOG_FILE, serialize($log));
+		}
 
 	die('<title>Pheditor</title><form method="post"><div style="text-align:center"><h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor" style="color:#444;text-decoration:none" tabindex="3">Pheditor</a></h1>' . (isset($error) ? '<p style="color:#dd0000">' . $error . '</p>' : null) . '<input name="pheditor_password" type="password" value="" placeholder="Password&hellip;" tabindex="1"><br><br><input type="submit" value="Login" tabindex="2"></div></form>');
 }
