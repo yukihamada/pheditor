@@ -368,12 +368,16 @@ function reloadFiles() {
 }
 
 function closeFile() {
+	var save = id("save");
 	var editor = id("editor");
+
+	if (save.hasAttribute("disabled") == false && confirm("Discard changes?") == false)
+		return false;
 
 	editor.innerHTML = "";
 	editor.setAttribute("data-file", "");
 
-	id("save").setAttribute("disabled", "");
+	save.setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
 
 	id("status").innerHTML = "";
