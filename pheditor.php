@@ -301,13 +301,18 @@ function openFile(element) {
 }
 
 function saveFile() {
+	var newFile;
 	var editor = id("editor");
 	var file = editor.getAttribute("data-file");
 
 	editor.innerHTML = editor.innerHTML.replace(/<br(\s*)\/*>/ig, "\n");
 
-	if (file.length < 1)
+	if (file.length < 1) {
+		newFile = true;
 		file = prompt("Please enter file name with full path", "new-file.php");
+	} else
+		newFile = false;
+
 
 	if (file != null && file.length > 0) {
 		var xhttp = new XMLHttpRequest();
@@ -317,6 +322,11 @@ function saveFile() {
 
 				id("save").setAttribute("disabled", "");
 				reloadFiles();
+
+				if (newFile == true) {
+					id("status").innerHTML = file;
+					editor.setAttribute("data-file", file);
+				}
 			}
 		}
 		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
