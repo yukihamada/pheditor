@@ -114,7 +114,7 @@ function files($dir, $display = 'block') {
 		$writable = is_writable($dir . DIRECTORY_SEPARATOR . $file) ? 'writable' : 'non-writable';
 
 		if (is_dir($dir . DIRECTORY_SEPARATOR . $file))
-			$data .= '<li class="dir ' . $writable . '"><a href="javascript:void(0);" onclick="return expandDir(this);">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
+			$data .= '<li class="dir ' . $writable . '"><a href="javascript:void(0);" onclick="return expandDir(this);" data-dir="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
 		else {
 			$is_editable = strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
@@ -264,17 +264,27 @@ ul.files li.non-writable, ul.files li.non-writable a { color: #990000; }
 }
 </style>
 <script type="text/javascript">
+var expandedDirs = [];
+
 function id(id) {
 	return document.getElementById(id);
 }
 
 function expandDir(element) {
 	var ul = element.nextSibling;
+	var dir = element.getAttribute("data-dir");
 	
-	if (ul.style.display == "none")
+	if (ul.style.display == "none") {
 		ul.style.display = "block";
-	else
+
+		expandedDirs.push(dir);
+	} else {
 		ul.style.display = "none";
+
+		for (var i in expandedDirs)
+			if (expandedDirs[i] == dir)
+				expandedDirs.splice(i, 1);
+	}
 }
 
 function openFile(element) {
@@ -340,6 +350,17 @@ function reloadFiles() {
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4 && xhttp.status == 200) {
 			id("sidebar").innerHTML = xhttp.responseText;
+
+			var dirs = id("sidebar").getElementsByTagName("a");
+
+			for (var i = 0; i < dirs.length; i++)
+				if (dirs[i].hasAttribute("data-dir") && dirs[i].getAttribute("data-dir"))
+					for (var j in expandedDirs)
+						if (dirs[i].getAttribute("data-dir") == expandedDirs[j]) {
+							dirs[i].click();
+
+							break;
+						}
 		}
 	}
 	xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
