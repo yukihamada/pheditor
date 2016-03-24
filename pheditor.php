@@ -383,8 +383,9 @@ function closeFile() {
 	id("status").innerHTML = "";
 }
 
-function editorChange() {
-	id("save").removeAttribute("disabled");
+function editorChange(event) {
+	if (event.ctrlKey == false)
+		id("save").removeAttribute("disabled");
 }
 
 function changePassword() {
@@ -455,7 +456,7 @@ document.onkeydown = function(event) {
 
 <div>
 	<div id="sidebar"><?=files(__DIR__)?></div>
-	<div id="editor" data-file="" contenteditable="true" onkeyup="return editorChange();"></div>
+	<div id="editor" data-file="" contenteditable="true" onkeydown="return editorChange(event);"></div>
 </div>
 
 </body>
