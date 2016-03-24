@@ -323,7 +323,6 @@ function saveFile() {
 	} else
 		newFile = false;
 
-
 	if (file != null && file.length > 0) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
