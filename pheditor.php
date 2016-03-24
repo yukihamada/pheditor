@@ -111,12 +111,14 @@ function files($dir, $display = 'block') {
 		if ($dir . DIRECTORY_SEPARATOR . $file == __FILE__)
 			continue;
 
+		$writable = is_writable($dir . DIRECTORY_SEPARATOR . $file) ? 'writable' : 'non-writable';
+
 		if (is_dir($dir . DIRECTORY_SEPARATOR . $file))
-			$data .= '<li class="dir"><a href="javascript:void(0);" onclick="return expandDir(this);">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
+			$data .= '<li class="dir ' . $writable . '"><a href="javascript:void(0);" onclick="return expandDir(this);">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
 		else {
 			$is_editable = strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
-			$data .= '<li class="file ' . ($is_editable ? 'editable' : null) . '">';
+			$data .= '<li class="file ' . $writable . ' ' . ($is_editable ? 'editable' : null) . '">';
 
 			if ($is_editable === true)
 				$data .= '<a href="javascript:void(0);" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
@@ -241,6 +243,7 @@ ul.files li {
 ul.files li.dir:before { content: "+"; margin-right: 5px; }
 ul.files li.file { cursor: default; margin-left: 15px; }
 ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
+ul.files li.non-writable, ul.files li.non-writable a { color: #990000; }
 
 @media screen and (max-width: 1000px) {
 	#status {
