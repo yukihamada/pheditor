@@ -287,6 +287,7 @@ function openFile(element) {
 
 			editor.innerHTML = xhttp.responseText;
 			editor.setAttribute("data-file", file);
+			editor.setAttribute("contenteditable", element.parentNode.className.indexOf("non-writable") < 0);
 
 			id("save").setAttribute("disabled", "");
 			id("close").removeAttribute("disabled");
