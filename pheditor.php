@@ -288,13 +288,14 @@ function expandDir(element) {
 }
 
 function openFile(element) {
+	var editor = id("editor");
 	var file = element.getAttribute("data-file");
+
+	editor.setAttribute("contenteditable", "false");
 
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4 && xhttp.status == 200) {
-			var editor = id("editor");
-
 			editor.innerHTML = xhttp.responseText;
 			editor.setAttribute("data-file", file);
 			editor.setAttribute("contenteditable", element.parentNode.className.indexOf("non-writable") < 0);
@@ -315,6 +316,7 @@ function saveFile() {
 	var editor = id("editor");
 	var file = editor.getAttribute("data-file");
 
+	editor.setAttribute("contenteditable", "false");
 	editor.innerHTML = editor.innerHTML.replace(/<br(\s*)\/*>/ig, "\n");
 
 	if (file.length < 1) {
@@ -327,9 +329,15 @@ function saveFile() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (xhttp.readyState == 4 && xhttp.status == 200) {
+				var save = id("save");
+
+				editor.setAttribute("contenteditable", "true");
+				save.focus();
+				editor.focus();
+
 				editor.innerHTML = xhttp.responseText;
 
-				id("save").setAttribute("disabled", "");
+				save.setAttribute("disabled", "");
 				reloadFiles();
 
 				if (newFile == true) {
