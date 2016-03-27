@@ -285,6 +285,8 @@ function expandDir(element) {
 			if (expandedDirs[i] == dir)
 				expandedDirs.splice(i, 1);
 	}
+
+	document.cookie = "phedExpDirs=" + expandedDirs.join("|");
 }
 
 function openFile(element) {
@@ -427,6 +429,21 @@ window.onload = function() {
 
 	id("save").setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
+
+	var dirs = id("sidebar").getElementsByTagName("a");
+	var cookie = document.cookie.split(";");
+	for (var i in cookie)
+		if (cookie[i].indexOf("phedExpDirs=") > -1) {
+			expandedDirs = cookie[i].substring(cookie[i].indexOf("=") + 1).split("|");
+
+			break;
+		}
+
+	for (var i = 0; i < dirs.length; i++)
+		if (dirs[i].hasAttribute("data-dir"))
+			for (var j in expandedDirs)
+				if (dirs[i].getAttribute("data-dir") == expandedDirs[j])
+					dirs[i].nextSibling.style.display = "block";
 }
 
 document.onkeydown = function(event) {
