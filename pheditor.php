@@ -406,6 +406,7 @@ function closeFile() {
 
 	editor.innerHTML = "";
 	editor.setAttribute("data-file", "");
+	editor.setAttribute("contenteditable", "true");
 
 	save.setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
