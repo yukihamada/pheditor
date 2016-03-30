@@ -94,6 +94,11 @@ if (isset($_POST['action'])) {
 				echo 'Password changed successfully.';
 			}
 			break;
+
+		case 'delete':
+			if (isset($_POST['file']) && file_exists(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']))
+				unlink(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']);
+			break;
 	}
 
 	exit;
@@ -127,6 +132,9 @@ function files($dir, $display = 'block') {
 
 			if ($is_editable)
 				$data .= '</a>';
+
+			if ($writable === 'writable')
+				$data .= ' <a href="javascript:void(0);" class="text-red visible-on-hover" onclick="return deleteFile(this);">[Delete]</a>';
 
 			$data .= '</li>';
 		}
@@ -244,6 +252,18 @@ ul.files li.dir:before { content: "+"; margin-right: 5px; }
 ul.files li.file { cursor: default; margin-left: 15px; }
 ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
 ul.files li.non-writable, ul.files li.non-writable a { color: #990000; }
+
+.text-red {
+	color: #dd0000;
+}
+
+.visible-on-hover {
+	visibility: hidden;
+}
+
+li.file:hover .visible-on-hover {
+	visibility: visible;
+}
 
 @media screen and (max-width: 1000px) {
 	#status {
@@ -410,6 +430,25 @@ function changePassword() {
 		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send("action=password&password=" + password);
+	}
+}
+
+function deleteFile(element) {
+	if (confirm("Are you sure to delete this file?") != true)
+		return false;
+
+	var file = element.previousSibling.previousSibling.getAttribute("data-file");
+
+	if (file != null && file.length > 0) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4 && xhttp.status == 200) {
+				reloadFiles();
+			}
+		}
+		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send("action=delete&file=" + encodeURIComponent(file));
 	}
 }
 
