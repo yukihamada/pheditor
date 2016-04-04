@@ -253,7 +253,7 @@ ul.files li.file { cursor: default; margin-left: 15px; }
 ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
 ul.files li.non-writable, ul.files li.non-writable a { color: #990000; }
 
-.text-red {
+.text-red, .text-red:hover {
 	color: #dd0000;
 }
 
