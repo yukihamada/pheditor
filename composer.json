@@ -1,0 +1,19 @@
+{
+	"name": "hamidsamak/pheditor",
+	"type": "project",
+	"description": "php file editor",
+	"keywords": ["pheditor", "php", "file editor", "file manager"],
+	"homepage": "https://github.com/hamidsamak/pheditor",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Hamid Samak",
+			"email": "me@hamidsamak.ir",
+			"homepage": "http://hamidsamak.ir",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0"
+	}
+}
