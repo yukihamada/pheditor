@@ -11,6 +11,7 @@
 define('PASSWORD', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec');
 define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md');
 define('LOG_FILE', __DIR__ . DIRECTORY_SEPARATOR . '.phedlog');
+define('SHOW_HIDDEN_FILES', false);
 
 if (file_exists(LOG_FILE)) {
 	$log = unserialize(file_get_contents(LOG_FILE));
@@ -113,7 +114,7 @@ function files($dir, $display = 'block') {
 	asort($files);
 
 	foreach ($files as $key => $file) {
-		if ($dir . DIRECTORY_SEPARATOR . $file == __FILE__)
+		if ($dir . DIRECTORY_SEPARATOR . $file == __FILE__ || (SHOW_HIDDEN_FILES === false && substr($file, 0, 1) === '.'))
 			continue;
 
 		$writable = is_writable($dir . DIRECTORY_SEPARATOR . $file) ? 'writable' : 'non-writable';
