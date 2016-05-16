@@ -216,6 +216,7 @@ nav {
 #sidebar {
 	width: 19%;
 	float: left;
+	overflow-y: auto;
 }
 
 #editor {
