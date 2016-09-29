@@ -494,7 +494,7 @@ document.onkeydown = function(event) {
 			event.preventDefault();
 
 			id("save").click();
-		} else if (event.keyCode == 87) {
+		} else if (event.keyCode == 67 || event.keyCode == 87) {
 			event.preventDefault();
 
 			id("close").click();
