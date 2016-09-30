@@ -373,6 +373,9 @@ function saveFile() {
 		xhttp.open("POST", "<?=$_SERVER['PHP_SELF']?>", true);
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send("action=save&file=" + encodeURIComponent(file) + "&data=" + encodeURIComponent(editor.textContent));
+	} else {
+		editor.setAttribute("contenteditable", "true");
+		editor.focus();
 	}
 }
 
