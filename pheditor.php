@@ -127,7 +127,7 @@ function files($dir, $display = 'block') {
 			$data .= '<li class="file ' . $writable . ' ' . ($is_editable ? 'editable' : null) . '">';
 
 			if ($is_editable === true)
-				$data .= '<a href="javascript:void(0);" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
+				$data .= '<a href="#' . $file . '" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
 
 			$data .= $file;
 
@@ -489,6 +489,18 @@ window.onload = function() {
 			for (var j in expandedDirs)
 				if (dirs[i].getAttribute("data-dir") == expandedDirs[j])
 					dirs[i].nextSibling.style.display = "block";
+
+	if (window.location.hash.length > 1) {
+		var hash = window.location.hash;
+		var files = id("sidebar").getElementsByTagName("a");
+
+		for (i in files)
+			if (files[i].hasAttribute("data-file") && files[i].getAttribute("data-file") == hash.substring(1)) {
+				files[i].click();
+
+				break;
+			}
+	}
 }
 
 document.onkeydown = function(event) {
