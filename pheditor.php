@@ -417,6 +417,7 @@ function closeFile() {
 	id("close").setAttribute("disabled", "");
 
 	id("status").innerHTML = "";
+	window.location.hash = "";
 }
 
 function editorChange(event) {
