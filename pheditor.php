@@ -360,6 +360,7 @@ function saveFile() {
 				editor.focus();
 
 				editor.innerHTML = xhttp.responseText;
+				editor.focus();
 
 				save.setAttribute("disabled", "");
 				reloadFiles();
@@ -425,6 +426,12 @@ function editorChange(event) {
 		id("save").removeAttribute("disabled");
 }
 
+function editorFocus(event) {
+	var editor = id("editor");
+
+	editor.innerHTML = escapeHtml(editor.textContent);
+}
+
 function changePassword() {
 	var password = prompt("Please enter new password:");
 
@@ -457,6 +464,12 @@ function deleteFile(element) {
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send("action=delete&file=" + encodeURIComponent(file));
 	}
+}
+
+function escapeHtml(string) {
+	var map = {"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" };
+
+	return string.replace(/[&<>""]/g, function(index) { return map[index]; });
 }
 
 window.onload = function() {
@@ -539,7 +552,7 @@ document.onkeydown = function(event) {
 
 <div>
 	<div id="sidebar"><?=files(__DIR__)?></div>
-	<div id="editor" data-file="" contenteditable="true" onkeydown="return editorChange(event);"></div>
+	<div id="editor" data-file="" contenteditable="true" onkeydown="return editorChange(event);" onfocus="return editorFocus(event);"></div>
 </div>
 
 </body>
