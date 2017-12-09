@@ -62,6 +62,21 @@ if (isset($_GET['logout'])) {
 }
 
 if (isset($_POST['action'])) {
+	if (isset($_POST['file']) && empty($_POST['file']) === false) {
+		$formats = explode(',', EDITABLE_FORMATS);
+
+		if (($position = strrpos($_POST['file'], '.')) !== false)
+			$extension = substr($_POST['file'], $position + 1);
+		else
+			$extension = null;
+
+		if (empty($extension) === false & in_array(strtolower($extension), $formats) !== true)
+			die('INVALID_EDITABLE_FORMAT');
+
+		if (strpos($_POST['file'], '../') !== false || strpos($_POST['file'], '..\'') !== false)
+			die('INVALID_FILE_PATH');
+	}
+
 	switch ($_POST['action']) {
 		case 'open':
 			if (isset($_POST['file']) && file_exists(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']))
