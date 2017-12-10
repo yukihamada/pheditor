@@ -70,7 +70,7 @@ if (isset($_POST['action'])) {
 		else
 			$extension = null;
 
-		if (empty($extension) === false & in_array(strtolower($extension), $formats) !== true)
+		if (empty($extension) === false && in_array(strtolower($extension), $formats) !== true)
 			die('INVALID_EDITABLE_FORMAT');
 
 		if (strpos($_POST['file'], '../') !== false || strpos($_POST['file'], '..\'') !== false)
