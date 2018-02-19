@@ -125,7 +125,7 @@ if (isset($_POST['action'])) {
 function files($dir, $display = 'block') {
 	$formats = explode(',', EDITABLE_FORMATS);
 
-	$data = '<ul class="files" style="display:' . $display . '">';
+	$data = '<ul class="files list-group" style="display:' . $display . '">';
 	$files = array_slice(scandir($dir), 2);
 
 	asort($files);
@@ -137,11 +137,11 @@ function files($dir, $display = 'block') {
 		$writable = is_writable($dir . DIRECTORY_SEPARATOR . $file) ? 'writable' : 'non-writable';
 
 		if (is_dir($dir . DIRECTORY_SEPARATOR . $file))
-			$data .= '<li class="dir ' . $writable . '"><a href="javascript:void(0);" onclick="return expandDir(this);" data-dir="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
+			$data .= '<li class="dir ' . $writable . ' list-group-item"><a href="javascript:void(0);" onclick="return expandDir(this);" data-dir="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
 		else {
 			$is_editable = strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
-			$data .= '<li class="file ' . $writable . ' ' . ($is_editable ? 'editable' : null) . '">';
+			$data .= '<li class="file ' . $writable . ' ' . ($is_editable ? 'editable' : null) . ' list-group-item">';
 
 			if ($is_editable === true)
 				$data .= '<a href="#' . $file . '" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
@@ -152,7 +152,7 @@ function files($dir, $display = 'block') {
 				$data .= '</a>';
 
 			if ($writable === 'writable')
-				$data .= ' <a href="javascript:void(0);" class="text-red visible-on-hover" onclick="return deleteFile(this);">[Delete]</a>';
+				$data .= ' <a href="javascript:void(0);" class="btn btn-sm btn-danger visible-on-hover" onclick="return deleteFile(this);">Delete</a>';
 
 			$data .= '</li>';
 		}
@@ -185,95 +185,13 @@ function redirect($address = null) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pheditor</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 <style type="text/css">
-body {
-	margin: 0;
-	padding: 0;
-	color: #444;
-}
-
-a, a:visited, a:focus {
-	color: #444;
-	text-decoration: none;
-}
-
-a:hover {
-	color: #000;
-}
-
 h1 {
+	margin: 0;
 	padding: 0;
-	margin: 10px;
-	display: inline-block;
-}
-
-h1 a {
 	color: #444;
-}
-
-#top {
-	border-bottom: 1px dotted #ccc;
-}
-
-header {
-	width: 20%;
-	float: left;
-}
-
-nav {
-	width: 80%;
-	float: right;
-}
-
-#status {
-	float: left;
-	margin-top: 15px;
-}
-
-#sidebar {
-	width: 19%;
-	float: left;
-	overflow-y: auto;
-}
-
-#editor {
-	width: 79%;
-	float: right;
-	padding: 10px;
-	overflow-y: auto;
-	white-space: pre-wrap;
-	border-left: 1px dotted #ccc;
-}
-
-ul.menu {
-	margin: 0;
-	padding: 0;
-}
-
-ul.menu li {
-	margin: 0;
-	float: right;
-	list-style-type: none;
-	padding: 10px 10px 0 0;
-}
-
-ul.files {
-	padding: 0;
-	margin: 10px 30px 0 30px;
-}
-
-ul.files li {
-	padding-bottom: 5px;
-	list-style-type: none;
-}
-
-ul.files li.dir:before { content: "+"; margin-right: 5px; }
-ul.files li.file { cursor: default; margin-left: 15px; }
-ul.files li.file.editable { list-style-type: disc; margin-left: 15px; }
-ul.files li.non-writable, ul.files li.non-writable a { color: #990000; }
-
-.text-red, .text-red:hover {
-	color: #dd0000;
+	cursor: default;
 }
 
 .visible-on-hover {
@@ -282,24 +200,6 @@ ul.files li.non-writable, ul.files li.non-writable a { color: #990000; }
 
 li.file:hover .visible-on-hover {
 	visibility: visible;
-}
-
-@media screen and (max-width: 1000px) {
-	#status {
-		margin-left: 10px;
-	}
-
-	#sidebar {
-		width: auto;
-		float: none;
-	}
-
-	#editor {
-		width: auto;
-		float: none;
-		border-left: 0;
-		border-top: 1px dotted #ccc;
-	}
 }
 </style>
 <script type="text/javascript">
@@ -550,26 +450,40 @@ document.onkeydown = function(event) {
 </head>
 <body>
 
-<div id="top">
-	<header>
-		<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="PHP file editor">Pheditor</a></h1><span><a href="javascript:void(0);" onclick="return changePassword();">[Password]</a> &nbsp; <a href="<?=$_SERVER['PHP_SELF']?>?logout=1">[Logout]</a></span>
-	</header>
+<div class="container-fluid">
 
-	<nav>
-		<div id="status"></div>
+	<div class="row p-3">
+		<div class="col-md-3">
+			<h1>Pheditor</h1>
+		</div>
+		<div class="col-md-9">
+			<div class="float-left">
+				<span id="status"></span>
+				<button id="save" onclick="return saveFile();" class="btn btn-sm btn-success" disabled>Save</button>
+				<button id="close" onclick="return closeFile();" class="btn btn-sm btn-danger" disabled>Close</button>
+			</div>
 
-		<ul class="menu">
-			<li><button id="close" onclick="return closeFile();" disabled>Close</button></li>
-			<li><button id="save" onclick="return saveFile();" disabled>Save</button></li>
-		</ul>
-	</nav>
+			<div class="float-right">
+				<a href="javascript:void(0);" onclick="return changePassword();" class="btn btn-sm btn-primary">Password</a> &nbsp; <a href="<?=$_SERVER['PHP_SELF']?>?logout=1" class="btn btn-sm btn-warning">Logout</a>
+			</div>
+		</div>
+	</div>
 
-	<div style="clear:both"></div>
-</div>
+	<div class="row p-3">
+		<div class="col-md-3">
+			<?=files(__DIR__)?>
+		</div>
 
-<div>
-	<div id="sidebar"><?=files(__DIR__)?></div>
-	<div id="editor" data-file="" contenteditable="true" onkeydown="return editorChange(event);" onfocus="return editorFocus(event);"></div>
+		<div class="col-md-9">
+			<div class="card">
+				<div class="card-block">
+					<div id="editor" data-file="" contenteditable="true" onkeydown="return editorChange(event);" onfocus="return editorFocus(event);"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
 </div>
 
 </body>
