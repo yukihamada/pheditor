@@ -201,6 +201,10 @@ h1 {
 li.file:hover .visible-on-hover {
 	visibility: visible;
 }
+	
+#editor {
+	white-space:pre;
+}
 </style>
 <script type="text/javascript">
 var expandedDirs = [];
