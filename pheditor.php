@@ -395,19 +395,6 @@ function escapeHtml(string) {
 }
 
 window.onload = function() {
-	window.onresize = function() {
-		if (window.innerWidth <= 1000) {
-			id("sidebar").style.height = "";
-			id("editor").style.height = "";
-			id("editor").style.minHeight = "100px";
-		} else {
-			id("sidebar").style.height = (window.innerHeight - id("top").clientHeight - 5) + "px";
-			id("editor").style.height = (window.innerHeight - 25 - id("top").clientHeight) + "px";
-		}
-	}
-
-	window.onresize();
-
 	id("save").setAttribute("disabled", "");
 	id("close").setAttribute("disabled", "");
 
@@ -476,7 +463,7 @@ document.onkeydown = function(event) {
 
 	<div class="row p-3">
 		<div class="col-md-3">
-			<?=files(__DIR__)?>
+			<div id="sidebar"><?=files(__DIR__)?></div>
 		</div>
 
 		<div class="col-md-9">
