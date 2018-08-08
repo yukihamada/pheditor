@@ -137,14 +137,14 @@ function files($dir, $display = 'block') {
 		$writable = is_writable($dir . DIRECTORY_SEPARATOR . $file) ? 'writable' : 'non-writable';
 
 		if (is_dir($dir . DIRECTORY_SEPARATOR . $file))
-			$data .= '<li class="dir ' . $writable . ' list-group-item"><a href="javascript:void(0);" onclick="return expandDir(this);" data-dir="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
+			$data .= '<li class="dir ' . $writable . ' list-group-item"><a href="javascript:void(0);" onclick="return expandDir(this);" data-dir="' . str_replace(__DIR__ . DIRECTORY_SEPARATOR, '', $dir . DIRECTORY_SEPARATOR . $file) . '">' . $file . '</a>' . files($dir . DIRECTORY_SEPARATOR . $file, 'none') . '</li>';
 		else {
 			$is_editable = strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
 			$data .= '<li class="file ' . $writable . ' ' . ($is_editable ? 'editable' : null) . ' list-group-item">';
 
 			if ($is_editable === true)
-				$data .= '<a href="#' . $file . '" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . '/', '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
+				$data .= '<a href="#' . $file . '" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . DIRECTORY_SEPARATOR, '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
 
 			$data .= $file;
 
