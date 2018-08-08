@@ -203,6 +203,7 @@ li.file:hover .visible-on-hover {
 }
 	
 #editor {
+	overflow: auto;
 	white-space: pre;
 	padding: 5px 10px;
 }
