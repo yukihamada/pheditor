@@ -264,7 +264,7 @@ function saveFile() {
 	var file = editor.getAttribute("data-file");
 
 	editor.setAttribute("contenteditable", "false");
-	editor.innerHTML = editor.innerHTML.replace(/<br(\s*)\/*>/ig, "\n");
+	editor.innerHTML = editor.innerHTML.replace(/<div>/gi, "").replace(/<\/div>/gi, "<br>").replace(/<br(\s*)\/*>/ig, "\n");
 
 	if (file.length < 1) {
 		newFile = true;
