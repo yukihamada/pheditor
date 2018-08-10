@@ -279,11 +279,7 @@ function saveFile() {
 				var save = id("save");
 
 				editor.setAttribute("contenteditable", "true");
-				save.focus();
-				editor.focus();
-
 				editor.innerHTML = xhttp.responseText;
-				editor.focus();
 
 				save.setAttribute("disabled", "");
 				reloadFiles();
@@ -432,6 +428,7 @@ document.onkeydown = function(event) {
 		if (event.keyCode == 83) {
 			event.preventDefault();
 
+			id("save").focus();
 			id("save").click();
 		} else if (event.keyCode == 87) {
 			event.preventDefault();
