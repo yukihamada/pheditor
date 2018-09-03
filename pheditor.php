@@ -421,6 +421,8 @@ window.onload = function() {
 				break;
 			}
 	}
+
+	window.onresize();
 }
 
 document.onkeydown = function(event) {
@@ -436,6 +438,16 @@ document.onkeydown = function(event) {
 			id("close").click();
 		}
 }
+
+window.onresize = function(){
+	var editor = id("editor");
+
+	if (window.innerWidth >= 720) {
+		var height = window.innerHeight - editor.getBoundingClientRect().top - 20;
+		editor.style.height = height + "px";
+	} else
+		editor.style.height = "";
+};
 </script>
 </head>
 <body>
