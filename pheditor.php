@@ -86,7 +86,7 @@ if (isset($_POST['action'])) {
 		case 'save':
 			$file = __DIR__ . DIRECTORY_SEPARATOR . $_POST['file'];
 
-			if (isset($_POST['file']) && isset($_POST['data']) && is_writable($file)) {
+			if (isset($_POST['file']) && isset($_POST['data']) && (file_exists($file) === false || is_writable($file))) {
 				file_put_contents($file, $_POST['data']);
 				echo br2nl(highlight_string(file_get_contents($file), true));
 			}
