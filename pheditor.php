@@ -415,7 +415,7 @@ window.onload = function() {
 		var files = id("sidebar").getElementsByTagName("a");
 
 		for (i in files)
-			if (files[i].hasAttribute("data-file") && files[i].getAttribute("data-file") == hash.substring(1)) {
+			if (typeof files[i] == "object" && files[i].hasAttribute("data-file") && files[i].getAttribute("data-file") == hash.substring(1)) {
 				files[i].click();
 
 				break;
