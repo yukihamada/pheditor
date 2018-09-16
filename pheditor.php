@@ -12,6 +12,10 @@ define('PASSWORD', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b93
 define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md');
 define('LOG_FILE', __DIR__ . DIRECTORY_SEPARATOR . '.phedlog');
 define('SHOW_HIDDEN_FILES', false);
+define('ACCESS_IP', '');
+
+if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR'])
+	die('This IP address is not allowed to access this page.');
 
 if (file_exists(LOG_FILE)) {
 	$log = unserialize(file_get_contents(LOG_FILE));
