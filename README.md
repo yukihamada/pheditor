@@ -23,3 +23,4 @@ The settings would be editable in the main PHP file (pheditor.php by default) an
 2. Log file path
 3. Show/Hide hidden files
 4. Limit access to the page only for an IP address (empty means access for all)
+5. Show/Hide main pheditor file (pheditor.php) in files list to edit 
