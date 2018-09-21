@@ -148,8 +148,11 @@ function files($dir, $display = 'block') {
 
             $data .= '<li class="file ' . $writable . ' ' . ($is_editable ? 'editable' : null) . ' list-group-item">';
 
-            if ($is_editable === true)
-                $data .= '<a href="#' . $file . '" onclick="return openFile(this);" data-file="' . str_replace(__DIR__ . DIRECTORY_SEPARATOR, '', $dir . DIRECTORY_SEPARATOR . $file) . '">';
+            if ($is_editable === true) {
+                $file_path = str_replace(__DIR__ . DIRECTORY_SEPARATOR, '', $dir . DIRECTORY_SEPARATOR . $file);
+
+                $data .= '<a href="#' . $file_path . '" onclick="return openFile(this);" data-file="' . $file_path . '">';
+            }
 
             $data .= $file;
 
