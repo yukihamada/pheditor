@@ -16,6 +16,7 @@ define('SHOW_HIDDEN_FILES', false);
 define('ACCESS_IP', '');
 define('HISTORY_PATH', __DIR__ . DIRECTORY_SEPARATOR . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
+define('WORD_WRAP', true);
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR'])
     die('Your IP address is not allowed to access this page.');
@@ -243,7 +244,7 @@ li.file:hover .visible-on-hover {
     
 #editor {
     overflow: auto;
-    white-space: pre;
+    white-space: pre<?php if (WORD_WRAP === true) print '-wrap'; ?>;
     padding: 5px 10px;
 }
 </style>
