@@ -195,11 +195,12 @@ function redirect($address = null) {
 <title>Pheditor</title>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 <style type="text/css">
-h1 {
+h1, h1 a, h1 a:hover {
     margin: 0;
     padding: 0;
     color: #444;
     cursor: default;
+    text-decoration: none;
 }
 
 .visible-on-hover {
@@ -464,7 +465,7 @@ window.onresize = function(){
 
     <div class="row p-3">
         <div class="col-md-3">
-            <h1>Pheditor</h1>
+            <h1><a href="http://github.com/hamidsamak/pheditor" target="_blank">Pheditor</a></h1>
         </div>
         <div class="col-md-9">
             <div class="float-left">
