@@ -160,7 +160,7 @@ function files($dir, $display = 'block') {
                 $data .= '</a>';
 
             if ($writable === 'writable')
-                $data .= ' <a href="javascript:void(0);" class="btn btn-sm btn-danger visible-on-hover" onclick="return deleteFile(this);">Delete</a>';
+                $data .= ' <a href="javascript:void(0);" class="btn btn-sm btn-danger visible-on-hover float-right" onclick="return deleteFile(this);">Delete</a>';
 
             $data .= '</li>';
         }
