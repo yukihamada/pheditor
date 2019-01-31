@@ -95,33 +95,7 @@ if (isset($_POST['action'])) {
             $file = __DIR__ . DIRECTORY_SEPARATOR . $_POST['file'];
 
             if (isset($_POST['file']) && isset($_POST['data']) && (file_exists($file) === false || is_writable($file))) {
-                if (is_numeric(MAX_HISTORY_FILES) && MAX_HISTORY_FILES > 0) {
-                    $file_dir = dirname($_POST['file']);
-                    $file_name = basename($_POST['file']);
-                    $file_history_dir = HISTORY_PATH . DIRECTORY_SEPARATOR . $file_dir;
-
-                    foreach ([HISTORY_PATH, $file_history_dir] as $dir)
-                        if (file_exists($dir) === false || is_dir($dir) === false)
-                            mkdir($dir);
-
-                    $history_files = scandir($file_history_dir);
-
-                    foreach ($history_files as $key => $history_file)
-                        if (in_array($history_file, ['.', '..', '.DS_Store']))
-                            unset($history_files[$key]);
-
-                    $history_files = array_values($history_files);
-
-                    if (count($history_files) >= MAX_HISTORY_FILES)
-                        foreach ($history_files as $key => $history_file)
-                            if ($key < 1) {
-                                unlink($file_history_dir . DIRECTORY_SEPARATOR . $history_file);
-                                unset($history_files[$key]);
-                            } else
-                                rename($file_history_dir . DIRECTORY_SEPARATOR . $history_file, $file_history_dir . DIRECTORY_SEPARATOR . $file_name . '.' . ($key - 1));
-
-                    copy($file, $file_history_dir . DIRECTORY_SEPARATOR . $file_name . '.' . count($history_files));
-                }
+                file_to_history($file);
 
                 file_put_contents($file, $_POST['data']);
                 echo br2nl(highlight_string(file_get_contents($file), true));
@@ -215,6 +189,36 @@ function redirect($address = null) {
 
     header('Location: ' . $address);
     exit;
+}
+
+function file_to_history($file) {
+    if (is_numeric(MAX_HISTORY_FILES) && MAX_HISTORY_FILES > 0) {
+        $file_dir = dirname($file);
+        $file_name = basename($file);
+        $file_history_dir = HISTORY_PATH . DIRECTORY_SEPARATOR . str_replace(__DIR__, '', $file_dir);
+
+        foreach ([HISTORY_PATH, $file_history_dir] as $dir)
+            if (file_exists($dir) === false || is_dir($dir) === false)
+                mkdir($dir);
+
+        $history_files = scandir($file_history_dir);
+
+        foreach ($history_files as $key => $history_file)
+            if (in_array($history_file, ['.', '..', '.DS_Store']))
+                unset($history_files[$key]);
+
+        $history_files = array_values($history_files);
+
+        if (count($history_files) >= MAX_HISTORY_FILES)
+            foreach ($history_files as $key => $history_file)
+                if ($key < 1) {
+                    unlink($file_history_dir . DIRECTORY_SEPARATOR . $history_file);
+                    unset($history_files[$key]);
+                } else
+                    rename($file_history_dir . DIRECTORY_SEPARATOR . $history_file, $file_history_dir . DIRECTORY_SEPARATOR . $file_name . '.' . ($key - 1));
+
+        copy($file, $file_history_dir . DIRECTORY_SEPARATOR . $file_name . '.' . count($history_files));
+    }
 }
 
 ?>
