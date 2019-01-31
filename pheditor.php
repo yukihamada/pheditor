@@ -124,8 +124,11 @@ if (isset($_POST['action'])) {
             break;
 
         case 'delete':
-            if (isset($_POST['file']) && file_exists(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']))
+            if (isset($_POST['file']) && file_exists(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file'])) {
+                file_to_history($_POST['file']);
+
                 unlink(__DIR__ . DIRECTORY_SEPARATOR . $_POST['file']);
+            }
             break;
     }
 
