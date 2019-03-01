@@ -574,7 +574,7 @@ $(function(){
         var path = $("#path").html();
 
         if (path.length > 0) {
-            var name = prompt("Please enter new name:", "new-name");//,
+            var name = prompt("Please enter new name:", "new-name");
 
             if (name != null && name.length > 0) {
                 $.post("<?=$_SERVER['PHP_SELF']?>", { action: "rename", path: path, name: name }, function(data){
