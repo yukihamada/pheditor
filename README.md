@@ -38,5 +38,5 @@ The settings are as below:
 **Hotkeys:**
 
 1. New File `Ctrl (CMD) + Shift + N`
-2. Save File `Ctrl (CMD + Shift + S`
+2. Save File `Ctrl (CMD) + Shift + S`
 3. Switch between file manager and editor `Esc`
