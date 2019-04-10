@@ -556,15 +556,17 @@ $(function(){
         var path = $("#path").html();
 
         if (path.length > 0) {
-            $.post("<?=$_SERVER['PHP_SELF']?>", { action: "delete", path: path }, function(data){
-                data = data.split("|");
+            if (confirm("Are you sure to delete this file?")) {
+                $.post("<?=$_SERVER['PHP_SELF']?>", { action: "delete", path: path }, function(data){
+                    data = data.split("|");
 
-                alertBox(data[1], data[0]);
+                    alertBox(data[1], data[0]);
 
-                if (data[0] == "success") {
-                    reloadFiles();
-                }
-            });
+                    if (data[0] == "success") {
+                        reloadFiles();
+                    }
+                });
+            }
         } else {
             alertBox("Please select a file or directory", "warning");
         }
