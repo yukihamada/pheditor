@@ -10,7 +10,6 @@ Pheditor is a single-file editor and file manager written in PHP.
 2. File Manager (create, rename and delete files and directories)
 3. Password protected area
 4. Keeping the history of edited files and changes
-5. 
 
 ### Install & Usage
 
