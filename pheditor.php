@@ -617,6 +617,32 @@ $(function(){
     $(".alert").click(function(){
         $(this).fadeOut();
     });
+
+    $(document).bind("keyup keydown", function(event){
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+            if (event.keyCode == 78) {
+                $(".dropdown .new-file").click();
+                event.preventDefault();
+                
+                return false;
+            } else if (event.keyCode == 83) {
+                $(".dropdown .save").click();
+                event.preventDefault();
+
+                return false;
+            }
+        }
+    });
+
+    $(document).bind("keyup", function(event){
+        if (event.keyCode == 27) {
+            if (document.activeElement.tagName.toLowerCase() == "textarea") {
+                $(".jstree-clicked").focus();
+            } else {
+                editor.focus();
+            }
+        }
+    });
 });
 </script>
 </head>
