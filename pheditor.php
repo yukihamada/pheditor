@@ -10,13 +10,14 @@
 
 define('PASSWORD', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec');
 define('DS', DIRECTORY_SEPARATOR);
+define('MAIN_DIR', __DIR__);
 define('VERSION', '2.0.0');
 define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md,json'); // empty means all types
-define('LOG_FILE', __DIR__ . DS . '.phedlog');
+define('LOG_FILE', MAIN_DIR . DS . '.phedlog');
 define('SHOW_PHP_SELF', false);
 define('SHOW_HIDDEN_FILES', false);
 define('ACCESS_IP', '');
-define('HISTORY_PATH', __DIR__ . DS . '.phedhistory');
+define('HISTORY_PATH', MAIN_DIR . DS . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
 
@@ -106,13 +107,13 @@ if (isset($_POST['action'])) {
         case 'open':
             $_POST['file'] = urldecode($_POST['file']);
 
-            if (isset($_POST['file']) && file_exists(__DIR__ . $_POST['file'])) {
-                echo file_get_contents(__DIR__ . $_POST['file']);
+            if (isset($_POST['file']) && file_exists(MAIN_DIR . $_POST['file'])) {
+                echo file_get_contents(MAIN_DIR . $_POST['file']);
             }
             break;
 
         case 'save':
-            $file = __DIR__ . $_POST['file'];
+            $file = MAIN_DIR . $_POST['file'];
 
             if (isset($_POST['file']) && isset($_POST['data']) && (file_exists($file) === false || is_writable($file))) {
                 if (file_exists($file) === false) {
@@ -134,7 +135,7 @@ if (isset($_POST['action'])) {
             break;
 
         case 'make-dir':
-            $dir = __DIR__ . $_POST['dir'];
+            $dir = MAIN_DIR . $_POST['dir'];
 
             if (file_exists($dir) === false) {
                 mkdir($dir);
@@ -146,7 +147,7 @@ if (isset($_POST['action'])) {
             break;
 
         case 'reload':
-            echo files(__DIR__);
+            echo files(MAIN_DIR);
             break;
 
         case 'password':
@@ -168,8 +169,8 @@ if (isset($_POST['action'])) {
             break;
 
         case 'delete':
-            if (isset($_POST['path']) && file_exists(__DIR__ . $_POST['path'])) {
-                $path = __DIR__ . $_POST['path'];
+            if (isset($_POST['path']) && file_exists(MAIN_DIR . $_POST['path'])) {
+                $path = MAIN_DIR . $_POST['path'];
 
                 if ($_POST['path'] == '/') {
                     echo 'danger|Unable to delete main directory';
@@ -198,8 +199,8 @@ if (isset($_POST['action'])) {
             break;
 
         case 'rename':
-            if (isset($_POST['path']) && file_exists(__DIR__ . $_POST['path']) && isset($_POST['name']) && empty($_POST['name']) === false) {
-                $path = __DIR__ . $_POST['path'];
+            if (isset($_POST['path']) && file_exists(MAIN_DIR . $_POST['path']) && isset($_POST['name']) && empty($_POST['name']) === false) {
+                $path = MAIN_DIR . $_POST['path'];
                 $new_path = str_replace(basename($path), '', dirname($path)) . DS . $_POST['name'];
 
                 if ($_POST['path'] == '/') {
@@ -235,7 +236,7 @@ function files($dir, $first = true)
     $data = '';
 
     if ($first === true) {
-        $data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="javascript:void(0);" class="open-dir" data-dir="/">' . basename(__DIR__) . '</a>';
+        $data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="javascript:void(0);" class="open-dir" data-dir="/">' . basename($dir) . '</a>';
     }
 
     $formats = explode(',', EDITABLE_FORMATS);
@@ -250,7 +251,7 @@ function files($dir, $first = true)
         }
 
         if (is_dir($dir . DS . $file)) {
-            $dir_path = str_replace(__DIR__ . DS, '', $dir . DS . $file);
+            $dir_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
 
             $data .= '<li class="dir"><a href="javascript:void(0);" class="open-dir" data-dir="/' . $dir_path . '/">' . $file . '</a>' . files($dir . DS . $file, false) . '</li>';
         } else {
@@ -259,7 +260,7 @@ function files($dir, $first = true)
             $data .= '<li class="file ' . ($is_editable ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'>';
 
             if ($is_editable === true) {
-                $file_path = str_replace(__DIR__ . DS, '', $dir . DS . $file);
+                $file_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
 
                 $data .= '<a href="javascript:void(0);" class="open-file" data-file="/' . $file_path . '">';
             }
@@ -298,7 +299,7 @@ function file_to_history($file)
     if (is_numeric(MAX_HISTORY_FILES) && MAX_HISTORY_FILES > 0) {
         $file_dir = dirname($file);
         $file_name = basename($file);
-        $file_history_dir = HISTORY_PATH . DS . str_replace(__DIR__, '', $file_dir);
+        $file_history_dir = HISTORY_PATH . DS . str_replace(MAIN_DIR, '', $file_dir);
 
         foreach ([HISTORY_PATH, $file_history_dir] as $dir) {
             if (file_exists($dir) === false || is_dir($dir) === false) {
@@ -623,7 +624,7 @@ $(function(){
             if (event.keyCode == 78) {
                 $(".dropdown .new-file").click();
                 event.preventDefault();
-                
+
                 return false;
             } else if (event.keyCode == 83) {
                 $(".dropdown .save").click();
@@ -682,7 +683,7 @@ $(function(){
     <div class="row p-3">
         <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
             <div id="files" class="card">
-                <div class="card-block"><?=files(__DIR__)?></div>
+                <div class="card-block"><?=files(MAIN_DIR)?></div>
             </div>
         </div>
 
