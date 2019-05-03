@@ -239,7 +239,7 @@ function files($dir, $first = true)
         $data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="javascript:void(0);" class="open-dir" data-dir="/">' . basename($dir) . '</a>';
     }
 
-    $formats = explode(',', EDITABLE_FORMATS);
+    $formats = empty(EDITABLE_FORMATS) ? [] : explode(',', EDITABLE_FORMATS);
     $data .= '<ul class="files">';
     $files = array_slice(scandir($dir), 2);
 
@@ -255,23 +255,10 @@ function files($dir, $first = true)
 
             $data .= '<li class="dir"><a href="javascript:void(0);" class="open-dir" data-dir="/' . $dir_path . '/">' . $file . '</a>' . files($dir . DS . $file, false) . '</li>';
         } else {
-            $is_editable = strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
+            $file_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
+            $is_editable = count($formats) < 1 || strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
-            $data .= '<li class="file ' . ($is_editable ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'>';
-
-            if ($is_editable === true) {
-                $file_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
-
-                $data .= '<a href="javascript:void(0);" class="open-file" data-file="/' . $file_path . '">';
-            }
-
-            $data .= $file;
-
-            if ($is_editable) {
-                $data .= '</a>';
-            }
-
-            $data .= '</li>';
+            $data .= '<li class="file ' . ($is_editable ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'><a href="javascript:void(0);" data-file="/' . $file_path . '"' . ($is_editable ? ' class="open-file"' : null) . '>' . $file . '</a></li>';
         }
     }
 
@@ -438,6 +425,12 @@ $(function(){
             $("#path").html(file);
             $(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
         });
+    });
+
+    $("#files").on("dblclick", "a[data-file]", function(event){
+        event.preventDefault();
+
+        window.open("<?=str_replace($_SERVER['DOCUMENT_ROOT'], '', MAIN_DIR)?>" + $(this).attr("data-file"));
     });
 
     $("#files").on("click", "a.open-dir", function(event){
