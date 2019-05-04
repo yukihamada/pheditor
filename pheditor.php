@@ -430,7 +430,7 @@ $(function(){
     $("#files").on("dblclick", "a[data-file]", function(event){
         event.preventDefault();
 
-        window.open("<?=str_replace($_SERVER['DOCUMENT_ROOT'], '', MAIN_DIR)?>" + $(this).attr("data-file"));
+        window.open("<?=str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace(DS, '/', MAIN_DIR))?>" + $(this).attr("data-file"));
     });
 
     $("#files").on("click", "a.open-dir", function(event){
