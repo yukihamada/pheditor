@@ -370,9 +370,15 @@ h1, h1 a, h1 a:hover {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/php/php.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/xml/xml.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/htmlmixed/htmlmixed.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/markdown/markdown.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/clike/clike.min.js"></script>
 <script type="text/javascript">
-var editor;
+var editor,
+    modes = {
+        "js": "javascript",
+        "json": "javascript",
+        "md": "text/x-markdown"
+    };
 
 function alertBox(message, className) {
     $(".alert").removeClass("alert-success alert-warning alert-danger");
@@ -420,6 +426,16 @@ $(function(){
 
         $.post("<?=$_SERVER['PHP_SELF']?>", { action: "open", file: encodeURIComponent(file) }, function(data){
             editor.setValue(data);
+
+            editor.setOption("mode", "application/x-httpd-php");
+
+            if (file.lastIndexOf(".") > 0) {
+                var extension = file.substring(file.lastIndexOf(".") + 1);
+
+                if (modes[extension]) {
+                    editor.setOption("mode", modes[extension]);
+                }
+            }
 
             $("#editor").attr("data-file", file);
             $("#path").html(file);
