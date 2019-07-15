@@ -53,7 +53,7 @@ if (file_exists(LOG_FILE)) {
 session_name('pheditor');
 session_start();
 
-if (isset($_SESSION['pheditor_admin']) === false || $_SESSION['pheditor_admin'] !== true) {
+if (empty(PASSWORD) === false && (isset($_SESSION['pheditor_admin']) === false || $_SESSION['pheditor_admin'] !== true)) {
     if (isset($_POST['pheditor_password']) && empty($_POST['pheditor_password']) === false) {
         if (hash('sha512', $_POST['pheditor_password']) === PASSWORD) {
             $_SESSION['pheditor_admin'] = true;
