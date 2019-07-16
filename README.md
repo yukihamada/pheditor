@@ -42,3 +42,7 @@ The settings are as below:
 2. Save File `Ctrl (CMD) + Shift + S`
 3. Switch between file manager and editor `Esc`
 4. Double click on file name to view in browser window/tab.
+
+**Using without password:**
+
+You can empty the `PASSWORD` constant in the source code to access the script without the password. But it is highly recommended to use it and change the default password after installation.
