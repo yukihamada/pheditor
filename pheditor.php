@@ -50,6 +50,7 @@ if (file_exists(LOG_FILE)) {
 
 }
 
+session_set_cookie_params(1440, dirname($_SERVER['REQUEST_URI']));
 session_name('pheditor');
 session_start();
 
