@@ -491,8 +491,16 @@ $(function(){
 
     $("#files").on("dblclick", "a[data-file]", function(event){
         event.preventDefault();
+        <?php
 
-        window.open("<?=str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace(DS, '/', MAIN_DIR))?>" + $(this).attr("data-file"));
+        $base_dir = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace(DS, '/', MAIN_DIR));
+
+        if (substr($base_dir, 0, 1) !== '/') {
+            $base_dir = '/' . $base_dir;
+        }
+
+        ?>
+        window.open("<?=$base_dir?>" + $(this).attr("data-file"));
     });
 
     $("#files").on("click", "a.open-dir", function(event){
