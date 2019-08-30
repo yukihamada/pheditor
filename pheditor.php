@@ -20,6 +20,7 @@ define('ACCESS_IP', '');
 define('HISTORY_PATH', MAIN_DIR . DS . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
+define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword'); // empty means all
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
     die('Your IP address is not allowed to access this page.');
@@ -85,6 +86,14 @@ if (isset($_GET['logout'])) {
     redirect();
 }
 
+$permissions = explode(',', PERMISSIONS);
+$permissions = array_map('trim', $permissions);
+$permissions = array_filter($permissions);
+
+if (count($permissions) < 1) {
+    $permissions = explode(',', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword');
+}
+
 if (isset($_POST['action'])) {
     if (isset($_POST['file']) && empty($_POST['file']) === false) {
         $formats = explode(',', EDITABLE_FORMATS);
@@ -118,12 +127,20 @@ if (isset($_POST['action'])) {
 
             if (isset($_POST['file']) && isset($_POST['data']) && (file_exists($file) === false || is_writable($file))) {
                 if (file_exists($file) === false) {
+                    if (in_array('newfile', $permissions) !== true) {
+                        die('danger|Permission denied');
+                    }
+
                     file_put_contents($file, $_POST['data']);
 
                     echo 'success|File saved successfully';
                 } else if (is_writable($file) === false) {
                     echo 'danger|File is not writable';
                 } else {
+                    if (in_array('editfile', $permissions) !== true) {
+                        die('danger|Permission denied');
+                    }
+
                     if (file_exists($_POST['file'])) {
                         file_to_history($file);
                     }
@@ -136,6 +153,10 @@ if (isset($_POST['action'])) {
             break;
 
         case 'make-dir':
+            if (in_array('newdir', $permissions) !== true) {
+                die('danger|Permission denied');
+            }
+
             $dir = MAIN_DIR . $_POST['dir'];
 
             if (file_exists($dir) === false) {
@@ -152,6 +173,10 @@ if (isset($_POST['action'])) {
             break;
 
         case 'password':
+            if (in_array('changepassword', $permissions) !== true) {
+                die('danger|Permission denied');
+            }
+
             if (isset($_POST['password']) && empty($_POST['password']) === false) {
                 $contents = file(__FILE__);
 
@@ -181,6 +206,10 @@ if (isset($_POST['action'])) {
                     } else if (is_writable($path) === false) {
                         echo 'danger|Unable to delete directory';
                     } else {
+                        if (in_array('deletedir', $permissions) !== true) {
+                            die('danger|Permission denied');
+                        }
+
                         rmdir($path);
 
                         echo 'success|Directory deleted successfully';
@@ -189,6 +218,10 @@ if (isset($_POST['action'])) {
                     file_to_history($path);
 
                     if (is_writable($path)) {
+                        if (in_array('deletefile', $permissions) !== true) {
+                            die('danger|Permission denied');
+                        }
+
                         unlink($path);
 
                         echo 'success|File deleted successfully';
@@ -207,6 +240,10 @@ if (isset($_POST['action'])) {
                 if ($_POST['path'] == '/') {
                     echo 'danger|Unable to rename main directory';
                 } else if (is_dir($path)) {
+                    if (in_array('renamedir', $permissions) !== true) {
+                        die('danger|Permission denied');
+                    }
+
                     if (is_writable($path) === false) {
                         echo 'danger|Unable to rename directory';
                     } else {
@@ -215,6 +252,10 @@ if (isset($_POST['action'])) {
                         echo 'success|Directory renamed successfully';
                     }
                 } else {
+                    if (in_array('renamefile', $permissions) !== true) {
+                        die('danger|Permission denied');
+                    }
+
                     file_to_history($path);
 
                     if (is_writable($path)) {
@@ -670,12 +711,30 @@ $(function(){
                 <div class="dropdown float-left">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="fileMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File</button>
                     <div class="dropdown-menu" aria-labelledby="fileMenu">
+                        <?php if (in_array('newfile', $permissions)) { ?>
                         <a class="dropdown-item new-file" href="javascript:void(0);">New File</a>
+                        <?php } ?>
+
+                        <?php if (in_array('newdir', $permissions)) { ?>
                         <a class="dropdown-item new-dir" href="javascript:void(0);">New Directory</a>
+                        <?php } ?>
+
+                        <?php if (in_array('newfile', $permissions) || in_array('newdir', $permissions)) { ?>
                         <div class="dropdown-divider"></div>
+                        <?php } ?>
+
+                        <?php if (in_array('newfile', $permissions) || in_array('editfile', $permissions)) { ?>
                         <a class="dropdown-item save disabled" href="javascript:void(0);">Save</a>
+                        <?php } ?>
+
+                        <?php if (in_array('deletefile', $permissions) || in_array('deletedir', $permissions)) { ?>
                         <a class="dropdown-item delete disabled" href="javascript:void(0);">Delete</a>
+                        <?php } ?>
+
+                        <?php if (in_array('renamefile', $permissions) || in_array('renamedir', $permissions)) { ?>
                         <a class="dropdown-item rename disabled" href="javascript:void(0);">Rename</a>
+                        <?php } ?>
+
                         <a class="dropdown-item reopen disabled" href="javascript:void(0);">Re-open</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item close disabled" href="javascript:void(0);">Close</a>
@@ -685,7 +744,7 @@ $(function(){
             </div>
 
             <div class="float-right">
-                <a href="javascript:void(0);" class="change-password btn btn-sm btn-primary">Password</a> &nbsp; <a href="<?=$_SERVER['PHP_SELF']?>?logout=1" class="btn btn-sm btn-danger">Logout</a>
+                <?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary">Password</a> &nbsp; <?php } ?><a href="<?=$_SERVER['PHP_SELF']?>?logout=1" class="btn btn-sm btn-danger">Logout</a>
             </div>
         </div>
     </div>
