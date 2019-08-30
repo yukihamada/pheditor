@@ -432,7 +432,7 @@ function alertBox(message, className) {
     }, 5000);
 }
 
-function reloadFiles() {
+function reloadFiles(hash) {
     $.post("<?=$_SERVER['PHP_SELF']?>", { action: "reload" }, function(data){
         $("#files > div").jstree("destroy");
         $("#files > div").html(data);
@@ -440,7 +440,11 @@ function reloadFiles() {
         $("#files > div a:first").click();
         $("#path").html("");
 
-        window.location.hash = "/";
+        window.location.hash = hash || "/";
+
+        if (hash) {
+            $("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
+        }
     });
 }
 
@@ -506,12 +510,12 @@ $(function(){
     });
 
     if (window.location.hash.length > 1) {
-            var hash = window.location.hash.substring(1);
+        var hash = window.location.hash.substring(1);
 
-            setTimeout(function(){
-                $("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
-            }, 500);
-        }
+        setTimeout(function(){
+            $("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
+        }, 500);
+    }
 
     $("a.change-password").click(function(){
         var password = prompt("Please enter new password:");
@@ -625,10 +629,22 @@ $(function(){
     });
 
     $(".dropdown .rename").click(function(){
-        var path = $("#path").html();
+        var path = $("#path").html(),
+            split = path.split("/"),
+            file = split[split.length - 1],
+            dir = split[split.length - 2],
+            new_file_name;
 
         if (path.length > 0) {
-            var name = prompt("Please enter new name:", "new-name");
+            if (file.length > 0) {
+                new_file_name = file;
+            } else if (dir.length > 0) {
+                new_file_name = dir;
+            } else {
+                new_file_name = "new-file";
+            }
+
+            var name = prompt("Please enter new name:", new_file_name);
 
             if (name != null && name.length > 0) {
                 $.post("<?=$_SERVER['PHP_SELF']?>", { action: "rename", path: path, name: name }, function(data){
@@ -637,7 +653,7 @@ $(function(){
                     alertBox(data[1], data[0]);
 
                     if (data[0] == "success") {
-                        reloadFiles();
+                        reloadFiles(path.substring(0, path.lastIndexOf("/")) + "/" + name);
                     }
                 });
             }
