@@ -3,7 +3,7 @@ Pheditor
 
 Pheditor is a single-file editor and file manager written in PHP.
 
-
+![Pheditor - PHP file Editor](https://hamidsamak.github.io/pheditor/assets/image/screenrecord-desktop.gif "Pheditor PHP file editor")
 
 ### Features
 1. Editor with syntax highlighting
