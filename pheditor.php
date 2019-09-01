@@ -420,7 +420,9 @@ var editor,
         "js": "javascript",
         "json": "javascript",
         "md": "text/x-markdown"
-    };
+    },
+    last_keyup_press = false,
+    last_keyup_double = false;
 
 function alertBox(message, className) {
     $(".alert").removeClass("alert-success alert-warning alert-danger");
@@ -712,10 +714,26 @@ $(function(){
 
     $(document).bind("keyup", function(event){
         if (event.keyCode == 27) {
-            if (document.activeElement.tagName.toLowerCase() == "textarea") {
-                $(".jstree-clicked").focus();
+            if (last_keyup_press == true) {
+                last_keyup_double = true;
+
+                $("#fileMenu").click();
+                $("body").focus();
             } else {
-                editor.focus();
+                last_keyup_press = true;
+
+                setTimeout(function(){
+                    if (last_keyup_double === false) {
+                        if (document.activeElement.tagName.toLowerCase() == "textarea") {
+                            $(".jstree-clicked").focus();
+                        } else {
+                            editor.focus();
+                        }
+                    }
+
+                    last_keyup_press = false;
+                    last_keyup_double = false;
+                }, 250);
             }
         }
     });
