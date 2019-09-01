@@ -50,7 +50,8 @@ The settings are as below:
 1. New File `Ctrl (CMD) + Shift + N`
 2. Save File `Ctrl (CMD) + Shift + S`
 3. Switch between file manager and editor `Esc`
-4. Double click on file name to view in browser window/tab.
+4. Double press `Esc` to open file menu
+5. Double click on file name to view in browser window/tab.
 
 ---
 
