@@ -34,7 +34,7 @@ or just upload `pheditor.php` to your web host (and/or rename it as you wish).
 
 The settings would be editable in the main PHP file (pheditor.php by default).
 The settings are as below:
-1. Editable formats (list of allowed file extensions to edit)
+1. Define patterns for files and directories to view/edit (empty means all files & directories)
 2. Log file path
 3. Show/Hide hidden files
 4. Limit access to the page only for an IP address (empty means access for all)
