@@ -12,7 +12,6 @@ define('PASSWORD', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b93
 define('DS', DIRECTORY_SEPARATOR);
 define('MAIN_DIR', __DIR__);
 define('VERSION', '2.0.0');
-define('EDITABLE_FORMATS', 'txt,php,htm,html,js,css,tpl,xml,md,json'); // empty means all types
 define('LOG_FILE', MAIN_DIR . DS . '.phedlog');
 define('SHOW_PHP_SELF', false);
 define('SHOW_HIDDEN_FILES', false);
@@ -21,6 +20,8 @@ define('HISTORY_PATH', MAIN_DIR . DS . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
 define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword'); // empty means all
+define('PATTERN_FILES', '/^(.*)\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
+define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empy means no pattern
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
     die('Your IP address is not allowed to access this page.');
@@ -96,20 +97,12 @@ if (count($permissions) < 1) {
 
 if (isset($_POST['action'])) {
     if (isset($_POST['file']) && empty($_POST['file']) === false) {
-        $formats = explode(',', EDITABLE_FORMATS);
-
-        if (($position = strrpos($_POST['file'], '.')) !== false) {
-            $extension = substr($_POST['file'], $position + 1);
-        } else {
-            $extension = null;
-        }
-
-        if (empty(EDITABLE_FORMATS) === false && empty($extension) === false && in_array(strtolower($extension), $formats) !== true) {
-            die('INVALID_EDITABLE_FORMAT');
+        if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $_POST['file'])) {
+            die('danger|Invalid file pattern');
         }
 
         if (strpos($_POST['file'], '../') !== false || strpos($_POST['file'], '..\'') !== false) {
-            die('INVALID_FILE_PATH');
+            die('danger|Invalid file path');
         }
     }
 
@@ -281,7 +274,6 @@ function files($dir, $first = true)
         $data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="javascript:void(0);" class="open-dir" data-dir="/">' . basename($dir) . '</a>';
     }
 
-    $formats = empty(EDITABLE_FORMATS) ? [] : explode(',', EDITABLE_FORMATS);
     $data .= '<ul class="files">';
     $files = array_slice(scandir($dir), 2);
 
@@ -292,15 +284,14 @@ function files($dir, $first = true)
             continue;
         }
 
-        if (is_dir($dir . DS . $file)) {
+        if (is_dir($dir . DS . $file) && (empty(PATTERN_DIRECTORIES) || preg_match(PATTERN_DIRECTORIES, $file))) {
             $dir_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
 
             $data .= '<li class="dir"><a href="javascript:void(0);" class="open-dir" data-dir="/' . $dir_path . '/">' . $file . '</a>' . files($dir . DS . $file, false) . '</li>';
-        } else {
+        } else if (empty(PATTERN_FILES) || preg_match(PATTERN_FILES, $file)) {
             $file_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
-            $is_editable = count($formats) < 1 || strpos($file, '.') === false || in_array(substr($file, strrpos($file, '.') + 1), $formats);
 
-            $data .= '<li class="file ' . ($is_editable ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'><a href="javascript:void(0);" data-file="/' . $file_path . '"' . ($is_editable ? ' class="open-file"' : null) . '>' . $file . '</a></li>';
+            $data .= '<li class="file ' . (is_writable($file_path) ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'><a href="javascript:void(0);" data-file="/' . $file_path . '" class="open-file">' . $file . '</a></li>';
         }
     }
 
