@@ -271,7 +271,7 @@ function files($dir, $first = true)
     $data = '';
 
     if ($first === true) {
-        $data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="javascript:void(0);" class="open-dir" data-dir="/">' . basename($dir) . '</a>';
+        $data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="#/" class="open-dir" data-dir="/">' . basename($dir) . '</a>';
     }
 
     $data .= '<ul class="files">';
@@ -287,11 +287,11 @@ function files($dir, $first = true)
         if (is_dir($dir . DS . $file) && (empty(PATTERN_DIRECTORIES) || preg_match(PATTERN_DIRECTORIES, $file))) {
             $dir_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
 
-            $data .= '<li class="dir"><a href="javascript:void(0);" class="open-dir" data-dir="/' . $dir_path . '/">' . $file . '</a>' . files($dir . DS . $file, false) . '</li>';
+            $data .= '<li class="dir"><a href="#/' . $dir_path . '/" class="open-dir" data-dir="/' . $dir_path . '/">' . $file . '</a>' . files($dir . DS . $file, false) . '</li>';
         } else if (empty(PATTERN_FILES) || preg_match(PATTERN_FILES, $file)) {
             $file_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
 
-            $data .= '<li class="file ' . (is_writable($file_path) ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'><a href="javascript:void(0);" data-file="/' . $file_path . '" class="open-file">' . $file . '</a></li>';
+            $data .= '<li class="file ' . (is_writable($file_path) ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'><a href="#/' . $file_path . '" data-file="/' . $file_path . '" class="open-file">' . $file . '</a></li>';
         }
     }
 
@@ -455,33 +455,6 @@ $(function(){
         plugins: [ "state" ]
     });
 
-    $("#files").on("click", "a.open-file", function(event){
-        event.preventDefault();
-
-        var file = $(this).attr("data-file"),
-            _this = $(this);
-
-        window.location.hash = file;
-
-        $.post("<?=$_SERVER['PHP_SELF']?>", { action: "open", file: encodeURIComponent(file) }, function(data){
-            editor.setValue(data);
-
-            editor.setOption("mode", "application/x-httpd-php");
-
-            if (file.lastIndexOf(".") > 0) {
-                var extension = file.substring(file.lastIndexOf(".") + 1);
-
-                if (modes[extension]) {
-                    editor.setOption("mode", modes[extension]);
-                }
-            }
-
-            $("#editor").attr("data-file", file);
-            $("#path").html(file);
-            $(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
-        });
-    });
-
     $("#files").on("dblclick", "a[data-file]", function(event){
         event.preventDefault();
         <?php
@@ -495,28 +468,6 @@ $(function(){
         ?>
         window.open("<?=$base_dir?>" + $(this).attr("data-file"));
     });
-
-    $("#files").on("click", "a.open-dir", function(event){
-        event.preventDefault();
-
-        var dir = $(this).attr("data-dir"),
-            _this = $(this);
-
-        window.location.hash = dir;
-
-        editor.setValue("");
-        $("#path").html(dir);
-        $(".dropdown").find(".save, .reopen, .close").addClass("disabled");
-        $(".dropdown").find(".delete, .rename").removeClass("disabled");
-    });
-
-    if (window.location.hash.length > 1) {
-        var hash = window.location.hash.substring(1);
-
-        setTimeout(function(){
-            $("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
-        }, 500);
-    }
 
     $("a.change-password").click(function(){
         var password = prompt("Please enter new password:");
@@ -727,6 +678,55 @@ $(function(){
                 }, 250);
             }
         }
+    });
+
+    $(window).on("hashchange", function(){
+        var hash = window.location.hash.substring(1);
+
+        if (hash.length > 0) {
+            if (hash.substring(-1) == "/") {
+                var dir = $("a[data-dir='" + hash + "']");
+
+                if (dir.length > 0) {
+                    editor.setValue("");
+                    $("#path").html(hash);
+                    $(".dropdown").find(".save, .reopen, .close").addClass("disabled");
+                    $(".dropdown").find(".delete, .rename").removeClass("disabled");
+                }
+            } else {
+                var file = $("a[data-file='" + hash + "']");
+
+                if (file.length > 0) {
+                    $.post("<?=$_SERVER['PHP_SELF']?>", { action: "open", file: encodeURIComponent(hash) }, function(data){
+                        editor.setValue(data);
+
+                        editor.setOption("mode", "application/x-httpd-php");
+
+                        if (hash.lastIndexOf(".") > 0) {
+                            var extension = hash.substring(hash.lastIndexOf(".") + 1);
+
+                            if (modes[extension]) {
+                                editor.setOption("mode", modes[extension]);
+                            }
+                        }
+
+                        $("#editor").attr("data-file", hash);
+                        $("#path").html(hash);
+                        $(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
+                    });
+                }
+            }
+        }
+    });
+
+    if (window.location.hash.length < 1) {
+        window.location.hash = "/";
+    } else {
+        $(window).trigger("hashchange");
+    }
+
+    $("#files").on("click", ".jstree-anchor", function(){
+        location.href = $(this).attr("href");
     });
 });
 </script>
