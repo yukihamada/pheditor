@@ -618,7 +618,7 @@ $(function(){
         var path = $("#path").html();
 
         if (path.length > 0) {
-            $("#files a[data-file=\"" + path + "\"], #files a[data-dir=\"" + path + "\"]").click();
+            $(window).trigger("hashchange");
         }
     });
 
