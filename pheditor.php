@@ -138,7 +138,7 @@ if (isset($_POST['action'])) {
                         die('danger|Permission denied');
                     }
 
-                    if (file_exists($_POST['file'])) {
+                    if (file_exists($file)) {
                         file_to_history($file);
                     }
 
@@ -323,11 +323,11 @@ function file_to_history($file)
     if (is_numeric(MAX_HISTORY_FILES) && MAX_HISTORY_FILES > 0) {
         $file_dir = dirname($file);
         $file_name = basename($file);
-        $file_history_dir = HISTORY_PATH . DS . str_replace(MAIN_DIR, '', $file_dir);
+        $file_history_dir = HISTORY_PATH . str_replace(MAIN_DIR, '', $file_dir);
 
         foreach ([HISTORY_PATH, $file_history_dir] as $dir) {
             if (file_exists($dir) === false || is_dir($dir) === false) {
-                mkdir($dir);
+                mkdir($dir, 0777, true);
             }
         }
 
