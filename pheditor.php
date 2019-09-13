@@ -793,6 +793,8 @@ $(function(){
         if (confirm(message + " Do you want to reload the page?")) {
             location.reload();
         }
+
+        $("#loading").fadeOut(250);
     });
 });
 </script>
