@@ -734,7 +734,7 @@ $(function(){
         var hash = window.location.hash.substring(1);
 
         if (hash.length > 0) {
-            if (hash.substring(-1) == "/") {
+            if (hash.substring(hash.length - 1) == "/") {
                 var dir = $("a[data-dir='" + hash + "']");
 
                 if (dir.length > 0) {
