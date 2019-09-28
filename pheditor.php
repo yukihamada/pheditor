@@ -892,7 +892,7 @@ $(function(){
                         </div>
                     </div>
                     <textarea id="editor" data-file="" class="form-control"></textarea>
-                    <input id="digest" type="text" readonly>
+                    <input id="digest" type="hidden" readonly>
                 </div>
             </div>
         </div>
