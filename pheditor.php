@@ -828,6 +828,26 @@ $(function(){
 
         $("#loading").fadeOut(250);
     });
+
+    $(window).keydown(function(event){
+        if ($("#fileMenu[aria-expanded='true']").length > 0) {
+            var code = event.keyCode;
+
+            if (code == 78) {
+               $(".new-file").click();
+            } else if (code == 83) {
+                $(".save").click();
+            } else if (code == 68) {
+                $(".delete").click();
+            } else if (code == 82) {
+                $(".rename").click();
+            } else if (code == 79) {
+                $(".reopen").click();
+            } else if (code == 67) {
+                $(".close").click();
+            }
+        }
+    });
 });
 </script>
 </head>
@@ -845,7 +865,7 @@ $(function(){
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="fileMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File</button>
                     <div class="dropdown-menu" aria-labelledby="fileMenu">
                         <?php if (in_array('newfile', $permissions)) { ?>
-                        <a class="dropdown-item new-file" href="javascript:void(0);">New File</a>
+                        <a class="dropdown-item new-file" href="javascript:void(0);">New File <span class="float-right text-secondary">N</span></a>
                         <?php } ?>
 
                         <?php if (in_array('newdir', $permissions)) { ?>
@@ -857,20 +877,20 @@ $(function(){
                         <?php } ?>
 
                         <?php if (in_array('newfile', $permissions) || in_array('editfile', $permissions)) { ?>
-                        <a class="dropdown-item save disabled" href="javascript:void(0);">Save</a>
+                        <a class="dropdown-item save disabled" href="javascript:void(0);">Save <span class="float-right text-secondary">S</span></a>
                         <?php } ?>
 
                         <?php if (in_array('deletefile', $permissions) || in_array('deletedir', $permissions)) { ?>
-                        <a class="dropdown-item delete disabled" href="javascript:void(0);">Delete</a>
+                        <a class="dropdown-item delete disabled" href="javascript:void(0);">Delete <span class="float-right text-secondary">D</span></a>
                         <?php } ?>
 
                         <?php if (in_array('renamefile', $permissions) || in_array('renamedir', $permissions)) { ?>
-                        <a class="dropdown-item rename disabled" href="javascript:void(0);">Rename</a>
+                        <a class="dropdown-item rename disabled" href="javascript:void(0);">Rename <span class="float-right text-secondary">R</span></a>
                         <?php } ?>
 
-                        <a class="dropdown-item reopen disabled" href="javascript:void(0);">Re-open</a>
+                        <a class="dropdown-item reopen disabled" href="javascript:void(0);">Re-open <span class="float-right text-secondary">O</span></a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item close disabled" href="javascript:void(0);">Close</a>
+                        <a class="dropdown-item close disabled" href="javascript:void(0);">Close <span class="float-right text-secondary">C</span></a>
                     </div>
                 </div>
                 <span id="path" class="btn float-left"></span>
