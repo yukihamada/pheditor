@@ -19,7 +19,7 @@ define('ACCESS_IP', '');
 define('HISTORY_PATH', MAIN_DIR . DS . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
-define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword'); // empty means all
+define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile'); // empty means all
 define('PATTERN_FILES', '/^(.*)\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
 define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empy means no pattern
 
@@ -265,6 +265,22 @@ if (isset($_POST['action'])) {
                 }
             }
             break;
+
+        case 'upload-file':
+            $files = $_FILES['uploadfile'];
+
+            if (is_array($files)) {
+                for ($i = 0; $i < count($files['name']); $i += 1) {
+                    if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $files['name'][$i])) {
+                        die('danger|Invalid file pattern: ' . htmlspecialchars($files['name'][$i]));
+                    }
+
+                    move_uploaded_file($files['tmp_name'][$i], MAIN_DIR . '/' . $files['name'][$i]);
+                }
+            }
+
+            echo 'success|File' . (count($files['name']) > 1 ? 's' : null) . ' uploaded successfully';
+            break;
     }
 
     exit;
@@ -442,6 +458,9 @@ h1, h1 a, h1 a:hover {
     100% {
         transform: rotate(360deg);
     }
+}
+.dropdown-menu {
+    min-width: 12rem;
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -845,8 +864,43 @@ $(function(){
                 $(".reopen").click();
             } else if (code == 67) {
                 $(".close").click();
+            } else if (code == 85) {
+               $(".upload-file").click();
             }
         }
+    });
+
+    $(".dropdown .upload-file").click(function(){
+        $("#uploadFileModal").modal("show");
+        $("#uploadFileModal input").focus();
+    });
+
+    $("#uploadFileModal button").click(function(){
+        // var input = $("#uploadFileModal input").val();
+        var form = $(this).closest("form"),
+            formdata = false;
+
+        if (window.FormData){
+            formdata = new FormData(form[0]);
+        }
+
+        $.ajax({
+            url: "<?=$_SERVER['PHP_SELF']?>",
+            data: formdata ? formdata : form.serialize(),
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            success: function(data, textStatus, jqXHR){
+                data = data.split("|");
+
+                alertBox(data[1], data[0]);
+
+                if (data[0] == "success") {
+                    reloadFiles();
+                }
+            }
+        });
     });
 });
 </script>
@@ -870,6 +924,10 @@ $(function(){
 
                         <?php if (in_array('newdir', $permissions)) { ?>
                         <a class="dropdown-item new-dir" href="javascript:void(0);">New Directory</a>
+                        <?php } ?>
+
+                        <?php if (in_array('uploadfile', $permissions)) { ?>
+                        <a class="dropdown-item upload-file" href="javascript:void(0);">Upload File <span class="float-right text-secondary">U</span></a>
                         <?php } ?>
 
                         <?php if (in_array('newfile', $permissions) || in_array('newdir', $permissions)) { ?>
@@ -931,6 +989,43 @@ $(function(){
 </div>
 
 <div class="alert"></div>
+
+<form method="post">
+    <input name="action" type="hidden" value="upload-file">
+
+    <div class="modal" id="uploadFileModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload File</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <input name="uploadfile[]" type="file" value="" multiple>
+                    </div>
+                    <?php
+
+                    if (function_exists('ini_get')) {
+                        $sizes = [
+                            ini_get('post_max_size'),
+                            ini_get('upload_max_filesize')
+                        ];
+
+                        $max_size = max($sizes);
+
+                        echo '<small class="text-muted">Maximum file size: ' . $max_size . '</small>';
+                    }
+
+                    ?>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 </body>
 </html>
