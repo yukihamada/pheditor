@@ -99,13 +99,17 @@ if (count($permissions) < 1) {
 }
 
 if (isset($_POST['action'])) {
+    header('Content-Type: application/json');
+
     if (isset($_POST['file']) && empty($_POST['file']) === false) {
         if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $_POST['file'])) {
-            die('danger|Invalid file pattern');
+            // die('danger|Invalid file pattern');
+            die(json_error('Invalid file pattern'));
         }
 
         if (strpos($_POST['file'], '../') !== false || strpos($_POST['file'], '..\'') !== false) {
-            die('danger|Invalid file path');
+            // die('danger|Invalid file path');
+            die(json_error('Invalid file pattern'));
         }
     }
 
@@ -114,7 +118,10 @@ if (isset($_POST['action'])) {
             $_POST['file'] = urldecode($_POST['file']);
 
             if (isset($_POST['file']) && file_exists(MAIN_DIR . $_POST['file'])) {
-                echo file_get_contents(MAIN_DIR . $_POST['file']);
+                // echo file_get_contents(MAIN_DIR . $_POST['file']);
+                die(json_success('OK', [
+                    'data' => file_get_contents(MAIN_DIR . $_POST['file']),
+                ]));
             }
             break;
 
@@ -124,17 +131,21 @@ if (isset($_POST['action'])) {
             if (isset($_POST['file']) && isset($_POST['data']) && (file_exists($file) === false || is_writable($file))) {
                 if (file_exists($file) === false) {
                     if (in_array('newfile', $permissions) !== true) {
-                        die('danger|Permission denied');
+                        // die('danger|Permission denied');
+                        die(json_error('Permission denied', true));
                     }
 
                     file_put_contents($file, $_POST['data']);
 
-                    echo 'success|File saved successfully';
+                    // echo 'success|File saved successfully';
+                    echo json_success('File saved successfully');
                 } else if (is_writable($file) === false) {
-                    echo 'danger|File is not writable';
+                    // echo 'danger|File is not writable';
+                    echo json_error('File is not writable');
                 } else {
                     if (in_array('editfile', $permissions) !== true) {
-                        die('danger|Permission denied');
+                        // die('danger|Permission denied');
+                        die(json_error('Permission denied'));
                     }
 
                     if (file_exists($file)) {
@@ -143,14 +154,16 @@ if (isset($_POST['action'])) {
 
                     file_put_contents($file, $_POST['data']);
 
-                    echo 'success|File saved successfully';
+                    // echo 'success|File saved successfully';
+                    echo json_success('File saved successfully');
                 }
             }
             break;
 
         case 'make-dir':
             if (in_array('newdir', $permissions) !== true) {
-                die('danger|Permission denied');
+                // die('danger|Permission denied');
+                die(json_error('Permission denied'));
             }
 
             $dir = MAIN_DIR . $_POST['dir'];
@@ -158,19 +171,24 @@ if (isset($_POST['action'])) {
             if (file_exists($dir) === false) {
                 mkdir($dir);
 
-                echo 'success|Directory created successfully';
+                // echo 'success|Directory created successfully';
+                echo json_success('Directory created successfully');
             } else {
-                echo 'warning|Directory already exists';
+                // echo 'warning|Directory already exists';
+                echo json_error('Directory already exists');
             }
             break;
 
         case 'reload':
-            echo files(MAIN_DIR);
+            echo json_success('OK', [
+                'data' => files(MAIN_DIR),
+            ]);
             break;
 
         case 'password':
             if (in_array('changepassword', $permissions) !== true) {
-                die('danger|Permission denied');
+                // die('danger|Permission denied');
+                die(json_error('Permission denied'));
             }
 
             if (isset($_POST['password']) && empty($_POST['password']) === false) {
@@ -186,7 +204,8 @@ if (isset($_POST['action'])) {
 
                 file_put_contents(__FILE__, implode($contents));
 
-                echo 'Password changed successfully.';
+                // echo 'Password changed successfully.';
+                echo json_success('Password changed successfully');
             }
             break;
 
@@ -195,34 +214,42 @@ if (isset($_POST['action'])) {
                 $path = MAIN_DIR . $_POST['path'];
 
                 if ($_POST['path'] == '/') {
-                    echo 'danger|Unable to delete main directory';
+                    // echo 'danger|Unable to delete main directory';
+                    echo json_error('Unable to delete main directory');
                 } else if (is_dir($path)) {
                     if (count(scandir($path)) !== 2) {
-                        echo 'danger|Directory is not empty';
+                        // echo 'danger|Directory is not empty';
+                        echo json_error('Directory is not empty');
                     } else if (is_writable($path) === false) {
-                        echo 'danger|Unable to delete directory';
+                        // echo 'danger|Unable to delete directory';
+                        echo json_error('Unable to delete directory');
                     } else {
                         if (in_array('deletedir', $permissions) !== true) {
-                            die('danger|Permission denied');
+                            // die('danger|Permission denied');
+                            die(json_error('Permission denied'));
                         }
 
                         rmdir($path);
 
-                        echo 'success|Directory deleted successfully';
+                        // echo 'success|Directory deleted successfully';
+                        echo json_success('Directory deleted successfully');
                     }
                 } else {
                     file_to_history($path);
 
                     if (is_writable($path)) {
                         if (in_array('deletefile', $permissions) !== true) {
-                            die('danger|Permission denied');
+                            // die('danger|Permission denied');
+                            die(json_error('Permission denied'));
                         }
 
                         unlink($path);
 
-                        echo 'success|File deleted successfully';
+                        // echo 'success|File deleted successfully';
+                        echo json_success('File deleted successfully');
                     } else {
-                        echo 'danger|Unable to delete file';
+                        // echo 'danger|Unable to delete file';
+                        echo json_error('Unable to delete file');
                     }
                 }
             }
@@ -234,22 +261,27 @@ if (isset($_POST['action'])) {
                 $new_path = str_replace(basename($path), '', dirname($path)) . DS . $_POST['name'];
 
                 if ($_POST['path'] == '/') {
-                    echo 'danger|Unable to rename main directory';
+                    // echo 'danger|Unable to rename main directory';
+                    echo json_error('Unable to rename main directory');
                 } else if (is_dir($path)) {
                     if (in_array('renamedir', $permissions) !== true) {
-                        die('danger|Permission denied');
+                        // die('danger|Permission denied');
+                        die(json_error('Permission denied'));
                     }
 
                     if (is_writable($path) === false) {
-                        echo 'danger|Unable to rename directory';
+                        // echo 'danger|Unable to rename directory';
+                        echo json_error('Unable to rename directory');
                     } else {
                         rename($path, $new_path);
 
-                        echo 'success|Directory renamed successfully';
+                        // echo 'success|Directory renamed successfully';
+                        echo json_success('Directory renamed successfully');
                     }
                 } else {
                     if (in_array('renamefile', $permissions) !== true) {
-                        die('danger|Permission denied');
+                        // die('danger|Permission denied');
+                        die(json_error('Permission denied'));
                     }
 
                     file_to_history($path);
@@ -257,28 +289,32 @@ if (isset($_POST['action'])) {
                     if (is_writable($path)) {
                         rename($path, $new_path);
 
-                        echo 'success|File renamed successfully';
+                        // echo 'success|File renamed successfully';
+                        echo json_success('File renamed successfully');
                     } else {
-                        echo 'danger|Unable to rename file';
+                        // echo 'danger|Unable to rename file';
+                        echo json_error('Unable to rename file');
                     }
                 }
             }
             break;
 
         case 'upload-file':
-            $files = $_FILES['uploadfile'];
+            $files = isset($_FILES['uploadfile']) ? $_FILES['uploadfile'] : [];
 
-            if (is_array($files)) {
+            if (is_array($files) && count($files) > 0) {
                 for ($i = 0; $i < count($files['name']); $i += 1) {
                     if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $files['name'][$i])) {
-                        die('danger|Invalid file pattern: ' . htmlspecialchars($files['name'][$i]));
+                        // die('danger|Invalid file pattern: ' . htmlspecialchars($files['name'][$i]));
+                        die(json_error('Invalid file pattern: ' . htmlspecialchars($files['name'][$i])));
                     }
 
                     move_uploaded_file($files['tmp_name'][$i], MAIN_DIR . '/' . $files['name'][$i]);
                 }
-            }
 
-            echo 'success|File' . (count($files['name']) > 1 ? 's' : null) . ' uploaded successfully';
+                // echo 'success|File' . (count($files['name']) > 1 ? 's' : null) . ' uploaded successfully';
+                echo json_success('File' . (count($files['name']) > 1 ? 's' : null) . ' uploaded successfully');
+            }
             break;
     }
 
@@ -369,6 +405,22 @@ function file_to_history($file)
 
         copy($file, $file_history_dir . DS . $file_name . '.' . count($history_files));
     }
+}
+
+function json_error($message, $params = [])
+{
+    return json_encode(array_merge([
+        'error' => true,
+        'message' => $message,
+    ], $params), JSON_UNESCAPED_UNICODE);
+}
+
+function json_success($message, $params = [])
+{
+    return json_encode(array_merge([
+        'error' => false,
+        'message' => $message,
+    ], $params), JSON_UNESCAPED_UNICODE);
 }
 
 ?>
@@ -522,7 +574,7 @@ function file_to_history($file)
                     action: "reload"
                 }, function(data) {
                     $("#files > div").jstree("destroy");
-                    $("#files > div").html(data);
+                    $("#files > div").html(data.data);
                     $("#files > div").jstree();
                     $("#files > div a:first").click();
                     $("#path").html("");
@@ -581,7 +633,7 @@ function file_to_history($file)
                             action: "password",
                             password: password
                         }, function(data) {
-                            alert(data);
+                            alertBox(data.message, data.error ? "warning" : "success");
                         });
                     }
                 });
@@ -606,11 +658,12 @@ function file_to_history($file)
                                 file: file,
                                 data: ""
                             }, function(data) {
-                                data = data.split("|");
+                                // data = data.split("|");
 
-                                alertBox(data[1], data[0]);
+                                // alertBox(data[1], data[0]);
+                                alertBox(data.message, data.error ? "warning" : "success");
 
-                                if (data[0] == "success") {
+                                if (data.error == false) {
                                     reloadFiles();
                                 }
                             });
@@ -639,11 +692,12 @@ function file_to_history($file)
                                 action: "make-dir",
                                 dir: dir
                             }, function(data) {
-                                data = data.split("|");
+                                // data = data.split("|");
 
-                                alertBox(data[1], data[0]);
+                                // alertBox(data[1], data[0]);
+                                alertBox(data.message, data.error ? "warning" : "success");
 
-                                if (data[0] == "success") {
+                                if (data.error == false) {
                                     reloadFiles();
                                 }
                             });
@@ -667,9 +721,10 @@ function file_to_history($file)
                             file: path,
                             data: data
                         }, function(data) {
-                            data = data.split("|");
+                            // data = data.split("|");
 
-                            alertBox(data[1], data[0]);
+                            // alertBox(data[1], data[0]);
+                            alertBox(data.message, data.error ? "warning" : "success");
                         });
                     } else {
                         alertBox("Please select a file", "warning");
@@ -691,11 +746,12 @@ function file_to_history($file)
                                 action: "delete",
                                 path: path
                             }, function(data) {
-                                data = data.split("|");
+                                // data = data.split("|");
 
-                                alertBox(data[1], data[0]);
+                                // alertBox(data[1], data[0]);
+                                alertBox(data.message, data.error ? "warning" : "success");
 
-                                if (data[0] == "success") {
+                                if (data.error == false) {
                                     reloadFiles();
                                 }
                             });
@@ -729,11 +785,12 @@ function file_to_history($file)
                                 path: path,
                                 name: name
                             }, function(data) {
-                                data = data.split("|");
+                                // data = data.split("|");
 
-                                alertBox(data[1], data[0]);
+                                // alertBox(data[1], data[0]);
+                                alertBox(data.message, data.error ? "warning" : "success");
 
-                                if (data[0] == "success") {
+                                if (data.error == false) {
                                     reloadFiles(path.substring(0, path.lastIndexOf("/")) + "/" + name);
                                 }
                             });
@@ -836,10 +893,16 @@ function file_to_history($file)
                                             action: "open",
                                             file: encodeURIComponent(hash)
                                         }, function(data) {
-                                            editor.setValue(data);
+                                            if (data.error == true) {
+                                                alertBox(data.message, "warning");
+
+                                                return false;
+                                            }
+
+                                            editor.setValue(data.data);
                                             editor.setOption("mode", "application/x-httpd-php");
 
-                                            sha512(data).then(function(digest) {
+                                            sha512(data.data).then(function(digest) {
                                                 $("#digest").val(digest);
                                             });
 
