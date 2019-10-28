@@ -95,7 +95,7 @@ $permissions = array_map('trim', $permissions);
 $permissions = array_filter($permissions);
 
 if (count($permissions) < 1) {
-    $permissions = explode(',', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword');
+    $permissions = explode(',', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile');
 }
 
 if (isset($_POST['action'])) {
