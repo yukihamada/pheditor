@@ -20,7 +20,7 @@ define('HISTORY_PATH', MAIN_DIR . DS . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
 define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile'); // empty means all
-define('PATTERN_FILES', '/^(.*)\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
+define('PATTERN_FILES', '/^[A-Za-z0-9-_.\/]*\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
 define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empy means no pattern
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
@@ -102,6 +102,8 @@ if (isset($_POST['action'])) {
     header('Content-Type: application/json');
 
     if (isset($_POST['file']) && empty($_POST['file']) === false) {
+        $_POST['file'] = urldecode($_POST['file']);
+
         if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $_POST['file'])) {
             // die('danger|Invalid file pattern');
             die(json_error('Invalid file pattern'));
@@ -642,7 +644,7 @@ function json_success($message, $params = [])
                     var path = $("#path").html();
 
                     if (path.length > 0) {
-                        var name = prompt("Please enter file name:", "new-file"),
+                        var name = prompt("Please enter file name:", "new-file.php"),
                             end = path.substring(path.length - 1),
                             file = "";
 
