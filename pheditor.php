@@ -1005,7 +1005,7 @@ function file_to_history($file)
                 </div>
             </div>
 
-            <div class="row p-3">
+            <div class="row px-3">
                 <div class="col-lg-3 col-md-3 col-sm-12 col-12">
                     <div id="files" class="card">
                         <div class="card-block"><?= files(MAIN_DIR) ?></div>
