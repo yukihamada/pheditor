@@ -303,6 +303,21 @@ if (isset($_POST['action'])) {
 
         case 'upload-file':
             $files = isset($_FILES['uploadfile']) ? $_FILES['uploadfile'] : [];
+            $destination = isset($_POST['destination']) ? rtrim($_POST['destination']) : null;
+
+            if (empty($destination) === false && (strpos($destination, '/..') !== false || strpos($destination, '\\..') !== false)) {
+                die(json_error('Invalid file destination'));
+            }
+
+            $destination = MAIN_DIR . $destination;
+
+            if (file_exists($destination) === false || is_dir($destination) === false) {
+                die(json_error('File destination does not exists'));
+            }
+
+            if (is_writable($destination) !== true) {
+                die(json_error('File destination is not writable'));
+            }
 
             if (is_array($files) && count($files) > 0) {
                 for ($i = 0; $i < count($files['name']); $i += 1) {
@@ -311,7 +326,7 @@ if (isset($_POST['action'])) {
                         die(json_error('Invalid file pattern: ' . htmlspecialchars($files['name'][$i])));
                     }
 
-                    move_uploaded_file($files['tmp_name'][$i], MAIN_DIR . '/' . $files['name'][$i]);
+                    move_uploaded_file($files['tmp_name'][$i], $destination . '/' . $files['name'][$i]);
                 }
 
                 // echo 'success|File' . (count($files['name']) > 1 ? 's' : null) . ' uploaded successfully';
@@ -989,6 +1004,8 @@ function json_success($message, $params = [])
                     var form = $(this).closest("form"),
                         formdata = false;
 
+                    form.find("input[name=destination]").val(window.location.hash.substring(1));
+
                     if (window.FormData) {
                         formdata = new FormData(form[0]);
                     }
@@ -1001,11 +1018,12 @@ function json_success($message, $params = [])
                         processData: false,
                         type: "POST",
                         success: function(data, textStatus, jqXHR) {
-                            data = data.split("|");
+                            // data = data.split("|");
 
-                            alertBox(data[1], data[0]);
+                            // alertBox(data[1], data[0]);
+                            alertBox(data.message, data.error ? "warning" : "success");
 
-                            if (data[0] == "success") {
+                            if (data.error == false) {
                                 reloadFiles();
                             }
                         }
@@ -1102,6 +1120,7 @@ function json_success($message, $params = [])
 
         <form method="post">
             <input name="action" type="hidden" value="upload-file">
+            <input name="destination" type="hidden" value="">
 
             <div class="modal" id="uploadFileModal">
                 <div class="modal-dialog">
