@@ -71,3 +71,5 @@ Default value: `newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedi
 **Thanks to:**
 
 [Laurent](https://github.com/slolo2000)
+
+[fjavierc](https://github.com/fjavierc)
