@@ -258,6 +258,8 @@ if (isset($_POST['action'])) {
 				} else {
 					if (in_array('renamefile', $permissions) !== true) {
 						die(json_error('Permission denied'));
+					} else if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $_POST['name'])) {
+						die(json_error('Invalid file pattern: ' . htmlspecialchars($_POST['name'])));
 					}
 
 					file_to_history($path);
@@ -411,702 +413,702 @@ function json_success($message, $params = [])
 }
 
 ?>
-	<!DOCTYPE html>
-	<html>
+<!DOCTYPE html>
+<html>
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Pheditor</title>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css">
-		<style type="text/css">
-			h1,
-			h1 a,
-			h1 a:hover {
-				margin: 0;
-				padding: 0;
-				color: #444;
-				cursor: default;
-				text-decoration: none;
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pheditor</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css">
+	<style type="text/css">
+		h1,
+		h1 a,
+		h1 a:hover {
+			margin: 0;
+			padding: 0;
+			color: #444;
+			cursor: default;
+			text-decoration: none;
+		}
+
+		#files {
+			padding: 20px 10px;
+			margin-bottom: 10px;
+		}
+
+		#files>div {
+			overflow: auto;
+		}
+
+		#path {
+			margin-left: 10px;
+		}
+
+		.dropdown-item.close {
+			font-size: 1em !important;
+			font-weight: normal;
+			opacity: 1;
+		}
+
+		.alert {
+			display: none;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			cursor: pointer;
+		}
+
+		#loading {
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 9;
+			display: none;
+			position: absolute;
+			background: rgba(0, 0, 0, 0.5);
+		}
+
+		.lds-ring {
+			margin: 0 auto;
+			position: relative;
+			width: 64px;
+			height: 64px;
+			top: 45%;
+		}
+
+		.lds-ring div {
+			box-sizing: border-box;
+			display: block;
+			position: absolute;
+			width: 51px;
+			height: 51px;
+			margin: 6px;
+			border: 6px solid #fff;
+			border-radius: 50%;
+			animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+			border-color: #fff transparent transparent transparent;
+		}
+
+		.lds-ring div:nth-child(1) {
+			animation-delay: -0.45s;
+		}
+
+		.lds-ring div:nth-child(2) {
+			animation-delay: -0.3s;
+		}
+
+		.lds-ring div:nth-child(3) {
+			animation-delay: -0.15s;
+		}
+
+		@keyframes lds-ring {
+			0% {
+				transform: rotate(0deg);
 			}
 
-			#files {
-				padding: 20px 10px;
-				margin-bottom: 10px;
+			100% {
+				transform: rotate(360deg);
 			}
+		}
 
-			#files>div {
-				overflow: auto;
-			}
+		.dropdown-menu {
+			min-width: 12rem;
+		}
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/javascript/javascript.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/css/css.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/php/php.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/xml/xml.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/htmlmixed/htmlmixed.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/markdown/markdown.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/clike/clike.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.10.2/jshint.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/javascript-lint.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/json-lint.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/css-lint.min.js"></script>
+	<script type="text/javascript">
+		var editor,
+			modes = {
+				"js": "javascript",
+				"json": "javascript",
+				"md": "text/x-markdown"
+			},
+			last_keyup_press = false,
+			last_keyup_double = false;
 
-			#path {
-				margin-left: 10px;
-			}
+		function alertBox(message, className) {
+			$(".alert").removeClass("alert-success alert-warning alert-danger");
 
-			.dropdown-item.close {
-				font-size: 1em !important;
-				font-weight: normal;
-				opacity: 1;
-			}
+			$(".alert").html(message).addClass("alert-" + className).fadeIn();
 
-			.alert {
-				display: none;
-				position: fixed;
-				top: 10px;
-				right: 10px;
-				cursor: pointer;
-			}
+			setTimeout(function() {
+				$(".alert").fadeOut();
+			}, 5000);
+		}
 
-			#loading {
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				z-index: 9;
-				display: none;
-				position: absolute;
-				background: rgba(0, 0, 0, 0.5);
-			}
+		function reloadFiles(hash) {
+			$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+				action: "reload"
+			}, function(data) {
+				$("#files > div").jstree("destroy");
+				$("#files > div").html(data.data);
+				$("#files > div").jstree();
+				$("#files > div a:first").click();
+				$("#path").html("");
 
-			.lds-ring {
-				margin: 0 auto;
-				position: relative;
-				width: 64px;
-				height: 64px;
-				top: 45%;
-			}
+				window.location.hash = hash || "/";
 
-			.lds-ring div {
-				box-sizing: border-box;
-				display: block;
-				position: absolute;
-				width: 51px;
-				height: 51px;
-				margin: 6px;
-				border: 6px solid #fff;
-				border-radius: 50%;
-				animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-				border-color: #fff transparent transparent transparent;
-			}
-
-			.lds-ring div:nth-child(1) {
-				animation-delay: -0.45s;
-			}
-
-			.lds-ring div:nth-child(2) {
-				animation-delay: -0.3s;
-			}
-
-			.lds-ring div:nth-child(3) {
-				animation-delay: -0.15s;
-			}
-
-			@keyframes lds-ring {
-				0% {
-					transform: rotate(0deg);
+				if (hash) {
+					$("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
 				}
+			});
+		}
 
-				100% {
-					transform: rotate(360deg);
-				}
-			}
+		function sha512(string) {
+			return crypto.subtle.digest("SHA-512", new TextEncoder("UTF-8").encode(string)).then(buffer => {
+				return Array.prototype.map.call(new Uint8Array(buffer), x => (("00" + x.toString(16)).slice(-2))).join("");
+			});
+		}
 
-			.dropdown-menu {
-				min-width: 12rem;
-			}
-		</style>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/javascript/javascript.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/css/css.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/php/php.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/xml/xml.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/htmlmixed/htmlmixed.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/markdown/markdown.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/clike/clike.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.10.2/jshint.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/javascript-lint.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/json-lint.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/css-lint.min.js"></script>
-		<script type="text/javascript">
-			var editor,
-				modes = {
-					"js": "javascript",
-					"json": "javascript",
-					"md": "text/x-markdown"
+		$(function() {
+			editor = CodeMirror.fromTextArea($("#editor")[0], {
+				lineNumbers: true,
+				mode: "application/x-httpd-php",
+				indentUnit: 4,
+				indentWithTabs: true,
+				lineWrapping: true,
+				gutters: ["CodeMirror-lint-markers"],
+				lint: true
+			});
+
+			$("#files > div").jstree({
+				state: {
+					key: "pheditor"
 				},
-				last_keyup_press = false,
-				last_keyup_double = false;
+				plugins: ["state"]
+			});
 
-			function alertBox(message, className) {
-				$(".alert").removeClass("alert-success alert-warning alert-danger");
+			$("#files").on("dblclick", "a[data-file]", function(event) {
+				event.preventDefault();
+				<?php
 
-				$(".alert").html(message).addClass("alert-" + className).fadeIn();
+				$base_dir = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace(DS, '/', MAIN_DIR));
 
-				setTimeout(function() {
-					$(".alert").fadeOut();
-				}, 5000);
-			}
+				if (substr($base_dir, 0, 1) !== '/') {
+					$base_dir = '/' . $base_dir;
+				}
 
-			function reloadFiles(hash) {
-				$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-					action: "reload"
-				}, function(data) {
-					$("#files > div").jstree("destroy");
-					$("#files > div").html(data.data);
-					$("#files > div").jstree();
-					$("#files > div a:first").click();
-					$("#path").html("");
+				?>
+				window.open("<?= $base_dir ?>" + $(this).attr("data-file"));
+			});
 
-					window.location.hash = hash || "/";
+			$("a.change-password").click(function() {
+				var password = prompt("Please enter new password:");
 
-					if (hash) {
-						$("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
-					}
-				});
-			}
+				if (password != null && password.length > 0) {
+					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						action: "password",
+						password: password
+					}, function(data) {
+						alertBox(data.message, data.error ? "warning" : "success");
+					});
+				}
+			});
 
-			function sha512(string) {
-				return crypto.subtle.digest("SHA-512", new TextEncoder("UTF-8").encode(string)).then(buffer => {
-					return Array.prototype.map.call(new Uint8Array(buffer), x => (("00" + x.toString(16)).slice(-2))).join("");
-				});
-			}
+			$(".dropdown .new-file").click(function() {
+				var path = $("#path").html();
 
-			$(function() {
-				editor = CodeMirror.fromTextArea($("#editor")[0], {
-					lineNumbers: true,
-					mode: "application/x-httpd-php",
-					indentUnit: 4,
-					indentWithTabs: true,
-					lineWrapping: true,
-					gutters: ["CodeMirror-lint-markers"],
-					lint: true
-				});
+				if (path.length > 0) {
+					var name = prompt("Please enter file name:", "new-file.php"),
+						end = path.substring(path.length - 1),
+						file = "";
 
-				$("#files > div").jstree({
-					state: {
-						key: "pheditor"
-					},
-					plugins: ["state"]
-				});
-
-				$("#files").on("dblclick", "a[data-file]", function(event) {
-					event.preventDefault();
-					<?php
-
-					$base_dir = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace(DS, '/', MAIN_DIR));
-
-					if (substr($base_dir, 0, 1) !== '/') {
-						$base_dir = '/' . $base_dir;
-					}
-
-					?>
-					window.open("<?= $base_dir ?>" + $(this).attr("data-file"));
-				});
-
-				$("a.change-password").click(function() {
-					var password = prompt("Please enter new password:");
-
-					if (password != null && password.length > 0) {
-						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-							action: "password",
-							password: password
-						}, function(data) {
-							alertBox(data.message, data.error ? "warning" : "success");
-						});
-					}
-				});
-
-				$(".dropdown .new-file").click(function() {
-					var path = $("#path").html();
-
-					if (path.length > 0) {
-						var name = prompt("Please enter file name:", "new-file.php"),
-							end = path.substring(path.length - 1),
-							file = "";
-
-						if (name != null && name.length > 0) {
-							if (end == "/") {
-								file = path + name;
-							} else {
-								file = path.substring(0, path.lastIndexOf("/") + 1) + name;
-							}
-
-							$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-								action: "save",
-								file: file,
-								data: ""
-							}, function(data) {
-								alertBox(data.message, data.error ? "warning" : "success");
-
-								if (data.error == false) {
-									reloadFiles();
-								}
-							});
+					if (name != null && name.length > 0) {
+						if (end == "/") {
+							file = path + name;
+						} else {
+							file = path.substring(0, path.lastIndexOf("/") + 1) + name;
 						}
-					} else {
-						alertBox("Please select a file or directory", "warning");
-					}
-				});
-
-				$(".dropdown .new-dir").click(function() {
-					var path = $("#path").html();
-
-					if (path.length > 0) {
-						var name = prompt("Please enter directory name:", "new-dir"),
-							end = path.substring(path.length - 1),
-							dir = "";
-
-						if (name != null && name.length > 0) {
-							if (end == "/") {
-								dir = path + name;
-							} else {
-								dir = path.substring(0, path.lastIndexOf("/") + 1) + name;
-							}
-
-							$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-								action: "make-dir",
-								dir: dir
-							}, function(data) {
-								alertBox(data.message, data.error ? "warning" : "success");
-
-								if (data.error == false) {
-									reloadFiles();
-								}
-							});
-						}
-					} else {
-						alertBox("Please select a file or directory", "warning");
-					}
-				});
-
-				$(".dropdown .save").click(function() {
-					var path = $("#path").html(),
-						data = editor.getValue();
-
-					if (path.length > 0) {
-						sha512(data).then(function(digest) {
-							$("#digest").val(digest);
-						});
 
 						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
 							action: "save",
-							file: path,
-							data: data
+							file: file,
+							data: ""
 						}, function(data) {
-							alertBox(data.message, data.error ? "warning" : "success");
-						});
-					} else {
-						alertBox("Please select a file", "warning");
-					}
-				});
-
-				$(".dropdown .close").click(function() {
-					editor.setValue("");
-					$("#files > div a:first").click();
-					$(".dropdown").find(".save, .delete, .rename, .reopen, .close").addClass("disabled");
-				});
-
-				$(".dropdown .delete").click(function() {
-					var path = $("#path").html();
-
-					if (path.length > 0) {
-						if (confirm("Are you sure to delete this file?")) {
-							$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-								action: "delete",
-								path: path
-							}, function(data) {
-								alertBox(data.message, data.error ? "warning" : "success");
-
-								if (data.error == false) {
-									reloadFiles();
-								}
-							});
-						}
-					} else {
-						alertBox("Please select a file or directory", "warning");
-					}
-				});
-
-				$(".dropdown .rename").click(function() {
-					var path = $("#path").html(),
-						split = path.split("/"),
-						file = split[split.length - 1],
-						dir = split[split.length - 2],
-						new_file_name;
-
-					if (path.length > 0) {
-						if (file.length > 0) {
-							new_file_name = file;
-						} else if (dir.length > 0) {
-							new_file_name = dir;
-						} else {
-							new_file_name = "new-file";
-						}
-
-						var name = prompt("Please enter new name:", new_file_name);
-
-						if (name != null && name.length > 0) {
-							$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-								action: "rename",
-								path: path,
-								name: name
-							}, function(data) {
-								alertBox(data.message, data.error ? "warning" : "success");
-
-								if (data.error == false) {
-									reloadFiles(path.substring(0, path.lastIndexOf("/")) + "/" + name);
-								}
-							});
-						}
-					} else {
-						alertBox("Please select a file or directory", "warning");
-					}
-				});
-
-				$(".dropdown .reopen").click(function() {
-					var path = $("#path").html();
-
-					if (path.length > 0) {
-						$(window).trigger("hashchange");
-					}
-				});
-
-				$(window).resize(function() {
-					if (window.innerWidth >= 720) {
-						var height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - 20;
-
-						$("#files, .CodeMirror").css("height", height + "px");
-					} else {
-						$("#files > div, .CodeMirror").css("height", "");
-					}
-				});
-
-				$(window).resize();
-
-				$(".alert").click(function() {
-					$(this).fadeOut();
-				});
-
-				$(document).bind("keyup keydown", function(event) {
-					if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
-						if (event.keyCode == 78) {
-							$(".dropdown .new-file").click();
-							event.preventDefault();
-
-							return false;
-						} else if (event.keyCode == 83) {
-							$(".dropdown .save").click();
-							event.preventDefault();
-
-							return false;
-						}
-					}
-				});
-
-				$(document).bind("keyup", function(event) {
-					if (event.keyCode == 27) {
-						if (last_keyup_press == true) {
-							last_keyup_double = true;
-
-							$("#fileMenu").click();
-							$("body").focus();
-						} else {
-							last_keyup_press = true;
-
-							setTimeout(function() {
-								if (last_keyup_double === false) {
-									if (document.activeElement.tagName.toLowerCase() == "textarea") {
-										$(".jstree-clicked").focus();
-									} else {
-										editor.focus();
-									}
-								}
-
-								last_keyup_press = false;
-								last_keyup_double = false;
-							}, 250);
-						}
-					}
-				});
-
-				$(window).on("hashchange", function() {
-					var hash = window.location.hash.substring(1),
-						data = editor.getValue();
-
-					if (hash.length > 0) {
-						sha512(data).then(function(digest) {
-							if ($("#digest").val().length < 1 || $("#digest").val() == digest) {
-								if (hash.substring(hash.length - 1) == "/") {
-									var dir = $("a[data-dir='" + hash + "']");
-
-									if (dir.length > 0) {
-										editor.setValue("");
-										$("#digest").val("");
-										$("#path").html(hash);
-										$(".dropdown").find(".save, .reopen, .close").addClass("disabled");
-										$(".dropdown").find(".delete, .rename").removeClass("disabled");
-									}
-								} else {
-									var file = $("a[data-file='" + hash + "']");
-
-									if (file.length > 0) {
-										$("#loading").fadeIn(250);
-
-										$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-											action: "open",
-											file: encodeURIComponent(hash)
-										}, function(data) {
-											if (data.error == true) {
-												alertBox(data.message, "warning");
-
-												return false;
-											}
-
-											editor.setValue(data.data);
-											editor.setOption("mode", "application/x-httpd-php");
-
-											sha512(data.data).then(function(digest) {
-												$("#digest").val(digest);
-											});
-
-											if (hash.lastIndexOf(".") > 0) {
-												var extension = hash.substring(hash.lastIndexOf(".") + 1);
-
-												if (modes[extension]) {
-													editor.setOption("mode", modes[extension]);
-												}
-											}
-
-											$("#editor").attr("data-file", hash);
-											$("#path").html(hash).hide().fadeIn(250);
-											$(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
-
-											$("#loading").fadeOut(250);
-										});
-									}
-								}
-							} else if (confirm("Discard changes?")) {
-								$("#digest").val("");
-
-								$(window).trigger("hashchange");
-							}
-						});
-					}
-				});
-
-				if (window.location.hash.length < 1) {
-					window.location.hash = "/";
-				} else {
-					$(window).trigger("hashchange");
-				}
-
-				$("#files").on("click", ".jstree-anchor", function() {
-					location.href = $(this).attr("href");
-				});
-
-				$(document).ajaxError(function(event, request, settings) {
-					var message = "An error occurred with this request.";
-
-					if (request.responseText.length > 0) {
-						message = request.responseText;
-					}
-
-					if (confirm(message + " Do you want to reload the page?")) {
-						location.reload();
-					}
-
-					$("#loading").fadeOut(250);
-				});
-
-				$(window).keydown(function(event) {
-					if ($("#fileMenu[aria-expanded='true']").length > 0) {
-						var code = event.keyCode;
-
-						if (code == 78) {
-							$(".new-file").click();
-						} else if (code == 83) {
-							$(".save").click();
-						} else if (code == 68) {
-							$(".delete").click();
-						} else if (code == 82) {
-							$(".rename").click();
-						} else if (code == 79) {
-							$(".reopen").click();
-						} else if (code == 67) {
-							$(".close").click();
-						} else if (code == 85) {
-							$(".upload-file").click();
-						}
-					}
-				});
-
-				$(".dropdown .upload-file").click(function() {
-					$("#uploadFileModal").modal("show");
-					$("#uploadFileModal input").focus();
-				});
-
-				$("#uploadFileModal button").click(function() {
-					var form = $(this).closest("form"),
-						formdata = false;
-
-					form.find("input[name=destination]").val(window.location.hash.substring(1));
-
-					if (window.FormData) {
-						formdata = new FormData(form[0]);
-					}
-
-					$.ajax({
-						url: "<?= $_SERVER['PHP_SELF'] ?>",
-						data: formdata ? formdata : form.serialize(),
-						cache: false,
-						contentType: false,
-						processData: false,
-						type: "POST",
-						success: function(data, textStatus, jqXHR) {
 							alertBox(data.message, data.error ? "warning" : "success");
 
 							if (data.error == false) {
 								reloadFiles();
 							}
+						});
+					}
+				} else {
+					alertBox("Please select a file or directory", "warning");
+				}
+			});
+
+			$(".dropdown .new-dir").click(function() {
+				var path = $("#path").html();
+
+				if (path.length > 0) {
+					var name = prompt("Please enter directory name:", "new-dir"),
+						end = path.substring(path.length - 1),
+						dir = "";
+
+					if (name != null && name.length > 0) {
+						if (end == "/") {
+							dir = path + name;
+						} else {
+							dir = path.substring(0, path.lastIndexOf("/") + 1) + name;
+						}
+
+						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+							action: "make-dir",
+							dir: dir
+						}, function(data) {
+							alertBox(data.message, data.error ? "warning" : "success");
+
+							if (data.error == false) {
+								reloadFiles();
+							}
+						});
+					}
+				} else {
+					alertBox("Please select a file or directory", "warning");
+				}
+			});
+
+			$(".dropdown .save").click(function() {
+				var path = $("#path").html(),
+					data = editor.getValue();
+
+				if (path.length > 0) {
+					sha512(data).then(function(digest) {
+						$("#digest").val(digest);
+					});
+
+					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						action: "save",
+						file: path,
+						data: data
+					}, function(data) {
+						alertBox(data.message, data.error ? "warning" : "success");
+					});
+				} else {
+					alertBox("Please select a file", "warning");
+				}
+			});
+
+			$(".dropdown .close").click(function() {
+				editor.setValue("");
+				$("#files > div a:first").click();
+				$(".dropdown").find(".save, .delete, .rename, .reopen, .close").addClass("disabled");
+			});
+
+			$(".dropdown .delete").click(function() {
+				var path = $("#path").html();
+
+				if (path.length > 0) {
+					if (confirm("Are you sure to delete this file?")) {
+						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+							action: "delete",
+							path: path
+						}, function(data) {
+							alertBox(data.message, data.error ? "warning" : "success");
+
+							if (data.error == false) {
+								reloadFiles();
+							}
+						});
+					}
+				} else {
+					alertBox("Please select a file or directory", "warning");
+				}
+			});
+
+			$(".dropdown .rename").click(function() {
+				var path = $("#path").html(),
+					split = path.split("/"),
+					file = split[split.length - 1],
+					dir = split[split.length - 2],
+					new_file_name;
+
+				if (path.length > 0) {
+					if (file.length > 0) {
+						new_file_name = file;
+					} else if (dir.length > 0) {
+						new_file_name = dir;
+					} else {
+						new_file_name = "new-file";
+					}
+
+					var name = prompt("Please enter new name:", new_file_name);
+
+					if (name != null && name.length > 0) {
+						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+							action: "rename",
+							path: path,
+							name: name
+						}, function(data) {
+							alertBox(data.message, data.error ? "warning" : "success");
+
+							if (data.error == false) {
+								reloadFiles(path.substring(0, path.lastIndexOf("/")) + "/" + name);
+							}
+						});
+					}
+				} else {
+					alertBox("Please select a file or directory", "warning");
+				}
+			});
+
+			$(".dropdown .reopen").click(function() {
+				var path = $("#path").html();
+
+				if (path.length > 0) {
+					$(window).trigger("hashchange");
+				}
+			});
+
+			$(window).resize(function() {
+				if (window.innerWidth >= 720) {
+					var height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - 20;
+
+					$("#files, .CodeMirror").css("height", height + "px");
+				} else {
+					$("#files > div, .CodeMirror").css("height", "");
+				}
+			});
+
+			$(window).resize();
+
+			$(".alert").click(function() {
+				$(this).fadeOut();
+			});
+
+			$(document).bind("keyup keydown", function(event) {
+				if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+					if (event.keyCode == 78) {
+						$(".dropdown .new-file").click();
+						event.preventDefault();
+
+						return false;
+					} else if (event.keyCode == 83) {
+						$(".dropdown .save").click();
+						event.preventDefault();
+
+						return false;
+					}
+				}
+			});
+
+			$(document).bind("keyup", function(event) {
+				if (event.keyCode == 27) {
+					if (last_keyup_press == true) {
+						last_keyup_double = true;
+
+						$("#fileMenu").click();
+						$("body").focus();
+					} else {
+						last_keyup_press = true;
+
+						setTimeout(function() {
+							if (last_keyup_double === false) {
+								if (document.activeElement.tagName.toLowerCase() == "textarea") {
+									$(".jstree-clicked").focus();
+								} else {
+									editor.focus();
+								}
+							}
+
+							last_keyup_press = false;
+							last_keyup_double = false;
+						}, 250);
+					}
+				}
+			});
+
+			$(window).on("hashchange", function() {
+				var hash = window.location.hash.substring(1),
+					data = editor.getValue();
+
+				if (hash.length > 0) {
+					sha512(data).then(function(digest) {
+						if ($("#digest").val().length < 1 || $("#digest").val() == digest) {
+							if (hash.substring(hash.length - 1) == "/") {
+								var dir = $("a[data-dir='" + hash + "']");
+
+								if (dir.length > 0) {
+									editor.setValue("");
+									$("#digest").val("");
+									$("#path").html(hash);
+									$(".dropdown").find(".save, .reopen, .close").addClass("disabled");
+									$(".dropdown").find(".delete, .rename").removeClass("disabled");
+								}
+							} else {
+								var file = $("a[data-file='" + hash + "']");
+
+								if (file.length > 0) {
+									$("#loading").fadeIn(250);
+
+									$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+										action: "open",
+										file: encodeURIComponent(hash)
+									}, function(data) {
+										if (data.error == true) {
+											alertBox(data.message, "warning");
+
+											return false;
+										}
+
+										editor.setValue(data.data);
+										editor.setOption("mode", "application/x-httpd-php");
+
+										sha512(data.data).then(function(digest) {
+											$("#digest").val(digest);
+										});
+
+										if (hash.lastIndexOf(".") > 0) {
+											var extension = hash.substring(hash.lastIndexOf(".") + 1);
+
+											if (modes[extension]) {
+												editor.setOption("mode", modes[extension]);
+											}
+										}
+
+										$("#editor").attr("data-file", hash);
+										$("#path").html(hash).hide().fadeIn(250);
+										$(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
+
+										$("#loading").fadeOut(250);
+									});
+								}
+							}
+						} else if (confirm("Discard changes?")) {
+							$("#digest").val("");
+
+							$(window).trigger("hashchange");
 						}
 					});
+				}
+			});
+
+			if (window.location.hash.length < 1) {
+				window.location.hash = "/";
+			} else {
+				$(window).trigger("hashchange");
+			}
+
+			$("#files").on("click", ".jstree-anchor", function() {
+				location.href = $(this).attr("href");
+			});
+
+			$(document).ajaxError(function(event, request, settings) {
+				var message = "An error occurred with this request.";
+
+				if (request.responseText.length > 0) {
+					message = request.responseText;
+				}
+
+				if (confirm(message + " Do you want to reload the page?")) {
+					location.reload();
+				}
+
+				$("#loading").fadeOut(250);
+			});
+
+			$(window).keydown(function(event) {
+				if ($("#fileMenu[aria-expanded='true']").length > 0) {
+					var code = event.keyCode;
+
+					if (code == 78) {
+						$(".new-file").click();
+					} else if (code == 83) {
+						$(".save").click();
+					} else if (code == 68) {
+						$(".delete").click();
+					} else if (code == 82) {
+						$(".rename").click();
+					} else if (code == 79) {
+						$(".reopen").click();
+					} else if (code == 67) {
+						$(".close").click();
+					} else if (code == 85) {
+						$(".upload-file").click();
+					}
+				}
+			});
+
+			$(".dropdown .upload-file").click(function() {
+				$("#uploadFileModal").modal("show");
+				$("#uploadFileModal input").focus();
+			});
+
+			$("#uploadFileModal button").click(function() {
+				var form = $(this).closest("form"),
+					formdata = false;
+
+				form.find("input[name=destination]").val(window.location.hash.substring(1));
+
+				if (window.FormData) {
+					formdata = new FormData(form[0]);
+				}
+
+				$.ajax({
+					url: "<?= $_SERVER['PHP_SELF'] ?>",
+					data: formdata ? formdata : form.serialize(),
+					cache: false,
+					contentType: false,
+					processData: false,
+					type: "POST",
+					success: function(data, textStatus, jqXHR) {
+						alertBox(data.message, data.error ? "warning" : "success");
+
+						if (data.error == false) {
+							reloadFiles();
+						}
+					}
 				});
 			});
-		</script>
-	</head>
+		});
+	</script>
+</head>
 
-	<body>
+<body>
 
-		<div class="container-fluid">
+	<div class="container-fluid">
 
-			<div class="row p-3">
-				<div class="col-md-3">
-					<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="Pheditor <?= VERSION ?>">Pheditor</a></h1>
-				</div>
-				<div class="col-md-9">
-					<div class="float-left">
-						<div class="dropdown float-left">
-							<button class="btn btn-secondary dropdown-toggle" type="button" id="fileMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File</button>
-							<div class="dropdown-menu" aria-labelledby="fileMenu">
-								<?php if (in_array('newfile', $permissions)) { ?>
-									<a class="dropdown-item new-file" href="javascript:void(0);">New File <span class="float-right text-secondary">N</span></a>
-								<?php } ?>
+		<div class="row p-3">
+			<div class="col-md-3">
+				<h1><a href="http://github.com/hamidsamak/pheditor" target="_blank" title="Pheditor <?= VERSION ?>">Pheditor</a></h1>
+			</div>
+			<div class="col-md-9">
+				<div class="float-left">
+					<div class="dropdown float-left">
+						<button class="btn btn-secondary dropdown-toggle" type="button" id="fileMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File</button>
+						<div class="dropdown-menu" aria-labelledby="fileMenu">
+							<?php if (in_array('newfile', $permissions)) { ?>
+								<a class="dropdown-item new-file" href="javascript:void(0);">New File <span class="float-right text-secondary">N</span></a>
+							<?php } ?>
 
-								<?php if (in_array('newdir', $permissions)) { ?>
-									<a class="dropdown-item new-dir" href="javascript:void(0);">New Directory</a>
-								<?php } ?>
+							<?php if (in_array('newdir', $permissions)) { ?>
+								<a class="dropdown-item new-dir" href="javascript:void(0);">New Directory</a>
+							<?php } ?>
 
-								<?php if (in_array('uploadfile', $permissions)) { ?>
-									<a class="dropdown-item upload-file" href="javascript:void(0);">Upload File <span class="float-right text-secondary">U</span></a>
-								<?php } ?>
+							<?php if (in_array('uploadfile', $permissions)) { ?>
+								<a class="dropdown-item upload-file" href="javascript:void(0);">Upload File <span class="float-right text-secondary">U</span></a>
+							<?php } ?>
 
-								<?php if (in_array('newfile', $permissions) || in_array('newdir', $permissions)) { ?>
-									<div class="dropdown-divider"></div>
-								<?php } ?>
-
-								<?php if (in_array('newfile', $permissions) || in_array('editfile', $permissions)) { ?>
-									<a class="dropdown-item save disabled" href="javascript:void(0);">Save <span class="float-right text-secondary">S</span></a>
-								<?php } ?>
-
-								<?php if (in_array('deletefile', $permissions) || in_array('deletedir', $permissions)) { ?>
-									<a class="dropdown-item delete disabled" href="javascript:void(0);">Delete <span class="float-right text-secondary">D</span></a>
-								<?php } ?>
-
-								<?php if (in_array('renamefile', $permissions) || in_array('renamedir', $permissions)) { ?>
-									<a class="dropdown-item rename disabled" href="javascript:void(0);">Rename <span class="float-right text-secondary">R</span></a>
-								<?php } ?>
-
-								<a class="dropdown-item reopen disabled" href="javascript:void(0);">Re-open <span class="float-right text-secondary">O</span></a>
+							<?php if (in_array('newfile', $permissions) || in_array('newdir', $permissions)) { ?>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item close disabled" href="javascript:void(0);">Close <span class="float-right text-secondary">C</span></a>
-							</div>
-						</div>
-						<span id="path" class="btn float-left"></span>
-					</div>
+							<?php } ?>
 
-					<div class="float-right">
-						<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary">Password</a> &nbsp; <?php } ?><a href="<?= $_SERVER['PHP_SELF'] ?>?logout=1" class="btn btn-sm btn-danger">Logout</a>
+							<?php if (in_array('newfile', $permissions) || in_array('editfile', $permissions)) { ?>
+								<a class="dropdown-item save disabled" href="javascript:void(0);">Save <span class="float-right text-secondary">S</span></a>
+							<?php } ?>
+
+							<?php if (in_array('deletefile', $permissions) || in_array('deletedir', $permissions)) { ?>
+								<a class="dropdown-item delete disabled" href="javascript:void(0);">Delete <span class="float-right text-secondary">D</span></a>
+							<?php } ?>
+
+							<?php if (in_array('renamefile', $permissions) || in_array('renamedir', $permissions)) { ?>
+								<a class="dropdown-item rename disabled" href="javascript:void(0);">Rename <span class="float-right text-secondary">R</span></a>
+							<?php } ?>
+
+							<a class="dropdown-item reopen disabled" href="javascript:void(0);">Re-open <span class="float-right text-secondary">O</span></a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item close disabled" href="javascript:void(0);">Close <span class="float-right text-secondary">C</span></a>
+						</div>
 					</div>
+					<span id="path" class="btn float-left"></span>
+				</div>
+
+				<div class="float-right">
+					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary">Password</a> &nbsp; <?php } ?><a href="<?= $_SERVER['PHP_SELF'] ?>?logout=1" class="btn btn-sm btn-danger">Logout</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="row px-3">
+			<div class="col-lg-3 col-md-3 col-sm-12 col-12">
+				<div id="files" class="card">
+					<div class="card-block"><?= files(MAIN_DIR) ?></div>
 				</div>
 			</div>
 
-			<div class="row px-3">
-				<div class="col-lg-3 col-md-3 col-sm-12 col-12">
-					<div id="files" class="card">
-						<div class="card-block"><?= files(MAIN_DIR) ?></div>
-					</div>
-				</div>
-
-				<div class="col-lg-9 col-md-9 col-sm-12 col-12">
-					<div class="card">
-						<div class="card-block">
-							<div id="loading">
-								<div class="lds-ring">
-									<div></div>
-									<div></div>
-									<div></div>
-									<div></div>
-								</div>
+			<div class="col-lg-9 col-md-9 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-block">
+						<div id="loading">
+							<div class="lds-ring">
+								<div></div>
+								<div></div>
+								<div></div>
+								<div></div>
 							</div>
-							<textarea id="editor" data-file="" class="form-control"></textarea>
-							<input id="digest" type="hidden" readonly>
 						</div>
+						<textarea id="editor" data-file="" class="form-control"></textarea>
+						<input id="digest" type="hidden" readonly>
 					</div>
 				</div>
-
 			</div>
 
 		</div>
 
-		<div class="alert"></div>
+	</div>
 
-		<form method="post">
-			<input name="action" type="hidden" value="upload-file">
-			<input name="destination" type="hidden" value="">
+	<div class="alert"></div>
 
-			<div class="modal" id="uploadFileModal">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4 class="modal-title">Upload File</h4>
-							<button type="button" class="close" data-dismiss="modal">&times;</button>
+	<form method="post">
+		<input name="action" type="hidden" value="upload-file">
+		<input name="destination" type="hidden" value="">
+
+		<div class="modal" id="uploadFileModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Upload File</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<div>
+							<input name="uploadfile[]" type="file" value="" multiple>
 						</div>
-						<div class="modal-body">
-							<div>
-								<input name="uploadfile[]" type="file" value="" multiple>
-							</div>
-							<?php
+						<?php
 
-							if (function_exists('ini_get')) {
-								$sizes = [
-									ini_get('post_max_size'),
-									ini_get('upload_max_filesize')
-								];
+						if (function_exists('ini_get')) {
+							$sizes = [
+								ini_get('post_max_size'),
+								ini_get('upload_max_filesize')
+							];
 
-								$max_size = max($sizes);
+							$max_size = max($sizes);
 
-								echo '<small class="text-muted">Maximum file size: ' . $max_size . '</small>';
-							}
+							echo '<small class="text-muted">Maximum file size: ' . $max_size . '</small>';
+						}
 
-							?>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-success" data-dismiss="modal">Upload</button>
-						</div>
+						?>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" data-dismiss="modal">Upload</button>
 					</div>
 				</div>
 			</div>
-		</form>
+		</div>
+	</form>
 
-	</body>
+</body>
 
-	</html>
+</html>
