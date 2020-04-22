@@ -104,7 +104,7 @@ if (isset($_POST['action'])) {
 	if (isset($_POST['file']) && empty($_POST['file']) === false) {
 		$_POST['file'] = urldecode($_POST['file']);
 
-		if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, $_POST['file'])) {
+		if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, basename($_POST['file']))) {
 			die(json_error('Invalid file pattern'));
 		}
 
