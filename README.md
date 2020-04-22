@@ -52,6 +52,13 @@ The settings are as below:
 3. Switch between file manager and editor `Esc`
 4. Double press `Esc` to open file menu
 5. Double click on file name to view in browser window/tab.
+6. Find `Ctrl (CMD) + F`
+7. Find next `Ctrl (CMD) + G`
+8. Find previous `Shift + Ctrl (CMD) + G`
+9. Replace `Shift + Ctrl + F` or `CMD + Option + F`
+10. Replace all `Shift + Ctrl + R` or `Shift + CMD + Option + F`
+11. Persistent search `Alt + F`
+12. Go to line `Alt (Option) + G`
 
 ---
 
