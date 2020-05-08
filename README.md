@@ -12,6 +12,7 @@ Pheditor is a single-file editor and file manager written in PHP.
 4. Keeping the history of edited files and changes
 5. Keyboard shortcuts
 6. Access levels for reading and writing and other permissions
+7. Terminal
 
 ---
 
@@ -42,6 +43,8 @@ The settings are as below:
 6. History files path
 7. Word wrap
 8. Changing main directory (`MAIN_DIR`)
+9. Enable/Disable Terminal
+10. Define allowed terminal commands
 
 ---
 
@@ -72,7 +75,7 @@ You can empty the `PASSWORD` constant in the source code to access the script wi
 
 There are eight permissions for users that is defined in `PERMISSIONS` constant. You can remove any of them as you need.
 
-Default value: `newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword`
+Default value: `newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile,terminal`
 
 ---
 **Thanks to:**
