@@ -19,9 +19,10 @@ define('ACCESS_IP', '');
 define('HISTORY_PATH', MAIN_DIR . DS . '.phedhistory');
 define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
-define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile'); // empty means all
+define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile,terminal'); // empty means all
 define('PATTERN_FILES', '/^[A-Za-z0-9-_.\/]*\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
 define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empy means no pattern
+define('TERMINAL_COMMANDS', 'ls,ll,cp,rm,mv,whoami,pidof,pwd,whereis,kill,php,date,cd,mkdir,chmod,chown,rmdir,touch,cat,git,find,grep,echo,tar,zip,unzip,whatis,composer,help');
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
 	die('Your IP address is not allowed to access this page.');
@@ -305,6 +306,58 @@ if (isset($_POST['action'])) {
 				echo json_success('File' . (count($files['name']) > 1 ? 's' : null) . ' uploaded successfully');
 			}
 			break;
+
+		case 'terminal':
+			if (in_array('terminal', $permissions) !== false && isset($_POST['command'], $_POST['dir'])) {
+				if (function_exists('shell_exec') === false) {
+					echo json_error("shell_exec function is disabled\n");
+
+					exit;
+				}
+
+				set_time_limit(15);
+
+				$command  = $_POST['command'];
+				$dir = $_POST['dir'];
+
+				$command_found = false;
+
+				foreach (explode(',', TERMINAL_COMMANDS) as $value) {
+					$value = trim($value);
+
+					if (strlen($command) >= strlen($value) && substr($command, 0, strlen($value)) == $value) {
+						$command_found = true;
+
+						break;
+					}
+				}
+
+				if ($command_found === false) {
+					echo json_error("Command not allowed\n");
+
+					exit;
+				}
+
+				$output = shell_exec((empty($dir) ? null : 'cd ' . $dir . ' && ') . $command . ' && echo \ && pwd');
+				$output = trim($output);
+
+				if (empty($output)) {
+					$output = null;
+					$dir = null;
+				} else {
+					$output = explode("\n", $output);
+					$dir = end($output);
+
+					unset($output[count($output) - 1]);
+
+					$output = implode("\n", $output);
+					$output = trim($output) . "\n";
+					$output = htmlspecialchars($output);
+				}
+
+				echo json_success('OK', ['result' => $output, 'dir' => $dir]);
+			}
+			break;
 	}
 
 	exit;
@@ -520,6 +573,41 @@ function json_success($message, $params = [])
 		.dropdown-menu {
 			min-width: 12rem;
 		}
+
+		#terminal {
+			padding: 5px 10px;
+		}
+
+		#terminal .toggle {
+			cursor: pointer;
+		}
+
+		#terminal pre {
+			background: black;
+			color: #fff;
+			padding: 5px 10px;
+			border-radius: 5px 5px 0 0;
+			margin: 5px 0 0 0;
+			height: 200px;
+			overflow-y: auto;
+		}
+
+		#terminal input.command {
+			width: 100%;
+			background: rgba(0, 0, 0, 0.8);
+			color: #fff;
+			border: 0;
+			border-radius: 0 0 5px 5px;
+			margin-bottom: 5px;
+			padding: 5px;
+		}
+
+		#terminal .btn {
+			padding: .5rem .4rem;
+			font-size: .875rem;
+			line-height: .5;
+			border-radius: .2rem;
+		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -585,6 +673,30 @@ function json_success($message, $params = [])
 			return crypto.subtle.digest("SHA-512", new TextEncoder("UTF-8").encode(string)).then(buffer => {
 				return Array.prototype.map.call(new Uint8Array(buffer), x => (("00" + x.toString(16)).slice(-2))).join("");
 			});
+		}
+
+		function setCookie(name, value, timeout) {
+			if (timeout) {
+				var date = new Date();
+				date.setTime(date.getTime() + (timeout * 1000));
+				timeout = "; expires=" + date.toUTCString();
+			} else {
+				timeout = "";
+			}
+
+			document.cookie = name + "=" + value + timeout + "; path=/";
+		}
+
+		function getCookie(name) {
+			var cookies = decodeURIComponent(document.cookie).split(';');
+
+			for (var i = 0; i < cookies.length; i++) {
+				if (cookies[i].trim().indexOf(name + "=") == 0) {
+					return cookies[i].trim().substring(name.length + 1).trim();
+				}
+			}
+
+			return false;
 		}
 
 		$(function() {
@@ -789,11 +901,16 @@ function json_success($message, $params = [])
 
 			$(window).resize(function() {
 				if (window.innerWidth >= 720) {
-					var height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - 20;
+					var terminalHeight = $("#terminal").length > 0 ? $("#terminal").height() : 0,
+						height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - terminalHeight - 30;
 
-					$("#files, .CodeMirror").css("height", height + "px");
+					$("#files, .CodeMirror").css({
+						"height": height + "px"
+					});
 				} else {
-					$("#files > div, .CodeMirror").css("height", "");
+					$("#files > div, .CodeMirror").css({
+						"height": ""
+					});
 				}
 			});
 
@@ -987,6 +1104,122 @@ function json_success($message, $params = [])
 					}
 				});
 			});
+
+			var terminal_dir = "";
+
+			$("#terminal .command").keydown(function(event) {
+				if (event.keyCode == 13 && $(this).val().length > 0) {
+					var _this = $(this)
+					_val = _this.val();
+
+					if (_val.toLowerCase() == "clear") {
+						$("#terminal pre").html("");
+						_this.val("").focus();
+
+						return true;
+					}
+
+					_this.prop("disabled", true);
+					$("#terminal pre").append("> " + _val + "\n");
+					$("#terminal pre").animate({
+						scrollTop: $("#terminal pre").prop("scrollHeight")
+					});
+
+					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						action: "terminal",
+						command: _val,
+						dir: terminal_dir
+					}, function(data) {
+						if (data.error) {
+							$("#terminal pre").append(data.message);
+						} else {
+							if (data.dir != null) {
+								terminal_dir = data.dir;
+							}
+
+							if (data.result == null) {
+								data.result = "Command not found\n";
+							}
+
+							$("#terminal pre").append(data.result);
+						}
+
+						$("#terminal pre").animate({
+							scrollTop: $("#terminal pre").prop("scrollHeight")
+						});
+						_this.val("").prop("disabled", false).focus();
+					});
+				}
+			});
+
+			$("#terminal .toggle").click(function() {
+				if ($(this).attr("aria-expanded") != "true") {
+					$("#terminal .command").focus();
+				}
+			});
+
+			$('#prompt').on('show.bs.collapse', function() {
+				$("#terminal").find(".clear, .copy").css({
+					"display": "block",
+					"opacity": "0",
+					"margin-right": "-30px"
+				}).animate({
+					"opacity": "1",
+					"margin-right": "0px"
+				}, 250);
+
+				if (window.innerWidth >= 720) {
+					var height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - $("#terminal #prompt").height() - 55;
+
+					$("#files, .CodeMirror").animate({
+						"height": height + "px"
+					},250);
+				} else {
+					$("#files > div, .CodeMirror").animate({
+						"height": ""
+					},250);
+				}
+
+				setCookie("terminal", "1", 86400);
+			}).on('hide.bs.collapse', function() {
+				$("#terminal").find(".clear, .copy").fadeOut();
+
+				if (window.innerWidth >= 720) {
+					var height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - $("#terminal span").height() - 35;
+
+					$("#files, .CodeMirror").animate({
+						"height": height + "px"
+					},250);
+				} else {
+					$("#files > div, .CodeMirror").animate({
+						"height": ""
+					},250);
+				}
+
+				setCookie("terminal", "0", 86400);
+			}).on('shown.bs.collapse', function() {
+				$("#terminal .command").focus();
+			});
+
+			$("#terminal button.clear").click(function() {
+				$("#terminal pre").html("");
+				$("#terminal .command").val("").focus();
+			});
+
+			$("#terminal button.copy").click(function() {
+				$("#terminal").append($("<textarea>").html($("#terminal pre").html()));
+
+				element = $("#terminal textarea")[0];
+				element.select();
+				element.setSelectionRange(0, 99999);
+				document.execCommand("copy");
+
+				$("#terminal textarea").remove();
+			});
+
+			if (getCookie("terminal") == "1") {
+				$("#terminal .toggle").click();
+			}
 		});
 	</script>
 </head>
@@ -1069,6 +1302,27 @@ function json_success($message, $params = [])
 					</div>
 				</div>
 			</div>
+
+			<?php if (in_array('terminal', $permissions) !== false) : ?>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-block">
+							<div id="terminal">
+								<div>
+									<button type="button" class="btn btn-light float-right ml-1 clear" style="display: none;">Clear</button>
+									<button type="button" class="btn btn-light float-right ml-1 copy" style="display: none;">Copy to clipboard</button>
+									<span class="toggle" data-toggle="collapse" data-target="#prompt">Terminal</span>
+									<div style="clear:both"></div>
+								</div>
+								<div id="prompt" class="collapse">
+									<pre></pre>
+									<input name="command" type="text" value="" class="command" autocomplete="off">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php endif; ?>
 
 		</div>
 
