@@ -1173,11 +1173,11 @@ function json_success($message, $params = [])
 
 					$("#files, .CodeMirror").animate({
 						"height": height + "px"
-					},250);
+					}, 250);
 				} else {
 					$("#files > div, .CodeMirror").animate({
 						"height": ""
-					},250);
+					}, 250);
 				}
 
 				setCookie("terminal", "1", 86400);
@@ -1189,11 +1189,11 @@ function json_success($message, $params = [])
 
 					$("#files, .CodeMirror").animate({
 						"height": height + "px"
-					},250);
+					}, 250);
 				} else {
 					$("#files > div, .CodeMirror").animate({
 						"height": ""
-					},250);
+					}, 250);
 				}
 
 				setCookie("terminal", "0", 86400);
