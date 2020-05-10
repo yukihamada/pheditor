@@ -954,6 +954,12 @@ function json_success($message, $params = [])
 						setTimeout(function() {
 							if (last_keyup_double === false) {
 								if (document.activeElement.tagName.toLowerCase() == "textarea") {
+									if ($("#terminal #prompt").hasClass("show")) {
+										$("#terminal .command").focus();
+									} else {
+										$(".jstree-clicked").focus();
+									}
+								} else if (document.activeElement.tagName.toLowerCase() == "input") {
 									$(".jstree-clicked").focus();
 								} else {
 									editor.focus();
