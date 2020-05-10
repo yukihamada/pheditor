@@ -62,6 +62,7 @@ The settings are as below:
 10. Replace all `Shift + Ctrl + R` or `Shift + CMD + Option + F`
 11. Persistent search `Alt + F`
 12. Go to line `Alt (Option) + G`
+13. Toggle Terminal `Ctrl (CMD) + Shift + L`
 
 ---
 
