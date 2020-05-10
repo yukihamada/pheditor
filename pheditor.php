@@ -932,6 +932,11 @@ function json_success($message, $params = [])
 						event.preventDefault();
 
 						return false;
+					} else if (event.keyCode == 76) {
+						$("#terminal .toggle").click();
+						event.preventDefault();
+
+						return false;
 					}
 				}
 			});
