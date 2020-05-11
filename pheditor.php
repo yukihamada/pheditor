@@ -608,6 +608,19 @@ function json_success($message, $params = [])
 			line-height: .5;
 			border-radius: .2rem;
 		}
+
+		#terminal #prompt:fullscreen {
+			background: #fff;
+		}
+
+		#terminal #prompt:fullscreen pre {
+			margin: 0;
+			border-radius: 0;
+		}
+
+		#terminal #prompt:fullscreen input.command {
+			border-radius: 0;
+		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -1170,7 +1183,7 @@ function json_success($message, $params = [])
 			});
 
 			$('#prompt').on('show.bs.collapse', function() {
-				$("#terminal").find(".clear, .copy").css({
+				$("#terminal").find(".clear, .copy, .fullscreen").css({
 					"display": "block",
 					"opacity": "0",
 					"margin-right": "-30px"
@@ -1193,7 +1206,7 @@ function json_success($message, $params = [])
 
 				setCookie("terminal", "1", 86400);
 			}).on('hide.bs.collapse', function() {
-				$("#terminal").find(".clear, .copy").fadeOut();
+				$("#terminal").find(".clear, .copy, .fullscreen").fadeOut();
 
 				if (window.innerWidth >= 720) {
 					var height = window.innerHeight - $(".CodeMirror")[0].getBoundingClientRect().top - $("#terminal span").height() - 35;
@@ -1231,6 +1244,24 @@ function json_success($message, $params = [])
 			if (getCookie("terminal") == "1") {
 				$("#terminal .toggle").click();
 			}
+
+			$("#terminal .fullscreen").click(function() {
+				var element = $("#terminal #prompt")[0];
+
+				if (element.requestFullscreen) {
+					element.requestFullscreen();
+
+					$("#prompt pre").height(screen.height - $("#prompt input.command").height() - 20);
+					$("#prompt input.command").focus();
+				}
+			});
+
+			$(window).on("fullscreenchange", function(){
+				if (document.fullscreenElement == null) {
+					$("#terminal #prompt pre").css("height", "");
+					$(window).resize();
+				}
+			});
 		});
 	</script>
 </head>
@@ -1322,6 +1353,7 @@ function json_success($message, $params = [])
 								<div>
 									<button type="button" class="btn btn-light float-right ml-1 clear" style="display: none;">Clear</button>
 									<button type="button" class="btn btn-light float-right ml-1 copy" style="display: none;">Copy to clipboard</button>
+									<button type="button" class="btn btn-light float-right ml-1 fullscreen" style="display: none;">Full Screen</button>
 									<span class="toggle" data-toggle="collapse" data-target="#prompt">Terminal</span>
 									<div style="clear:both"></div>
 								</div>
