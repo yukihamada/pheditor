@@ -477,6 +477,7 @@ function json_success($message, $params = [])
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Pheditor</title>
+	<link id="favicon" rel="shortcut icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAhFBMVEUAAAAAAAD////p6ekLCwt+fn43NzccHBzT09PIyMjFxcWysrKnp6ekpKSfn5+ampqNjY2IiIiCgoJ0dHRubm5kZGRdXV1PT09JSUlEREQjIyMTExMHBwf7+/v19fXg4ODW1tbAwMCRkZGDg4N5eXloaGhTU1M+Pj4vLy8sLCwlJSURERGNXQbaAAAAAXRSTlN4HjghaAAAAI1JREFUGNNlz0cSwkAQQ9HRdyI542xyhvvfj5opFoC167dolYzRT/5v6Qui+P6Bp3wLDakDPwM4SQGdA2B1mdFqgRw0C3wNHMVB9dr+wJMeFCHpBiqjG4n8PVEAQU5klOPtoNacpTxPRjOSrBoleA3EtmUrm5C5rpQyHSsHBWeV2JZ2lEsvhctek3GT+W8jMQY7SBmDowAAAABJRU5ErkJggg==">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
