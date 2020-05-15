@@ -599,7 +599,7 @@ function json_success($message, $params = [])
 
 		#terminal input.command {
 			width: 100%;
-			background: rgba(0, 0, 0, 0.8);
+			background: #333;
 			color: #fff;
 			border: 0;
 			border-radius: 0 0 5px 5px;
@@ -612,10 +612,6 @@ function json_success($message, $params = [])
 			font-size: .875rem;
 			line-height: .5;
 			border-radius: .2rem;
-		}
-
-		#terminal #prompt:fullscreen {
-			background: #fff;
 		}
 
 		#terminal #prompt:fullscreen pre {
@@ -929,6 +925,10 @@ function json_success($message, $params = [])
 					$("#files > div, .CodeMirror").css({
 						"height": ""
 					});
+				}
+
+				if (document.fullscreen) {
+					$("#prompt pre").height($(window).height() - $("#prompt input.command").height() - 20);
 				}
 			});
 
@@ -1256,8 +1256,10 @@ function json_success($message, $params = [])
 				if (element.requestFullscreen) {
 					element.requestFullscreen();
 
-					$("#prompt pre").height(screen.height - $("#prompt input.command").height() - 20);
-					$("#prompt input.command").focus();
+					setTimeout(function() {
+						$("#prompt pre").height($(window).height() - $("#prompt input.command").height() - 20);
+						$("#prompt input.command").focus();
+					}, 500);
 				}
 			});
 
