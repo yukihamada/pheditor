@@ -1260,7 +1260,7 @@ function json_success($message, $params = [])
 				}
 			});
 
-			$(window).on("fullscreenchange", function(){
+			$(window).on("fullscreenchange", function() {
 				if (document.fullscreenElement == null) {
 					$("#terminal #prompt pre").css("height", "");
 					$(window).resize();
