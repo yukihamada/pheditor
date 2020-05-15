@@ -193,6 +193,10 @@ if (isset($_POST['action'])) {
 					}
 				}
 
+				if (is_writable(__FILE__) === false) {
+					die(json_error('File is not writable'));
+				}
+
 				file_put_contents(__FILE__, implode($contents));
 
 				echo json_success('Password changed successfully');
