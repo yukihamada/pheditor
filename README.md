@@ -3,7 +3,7 @@ Pheditor
 
 Pheditor is a single-file editor and file manager written in PHP.
 
-![Pheditor - PHP file Editor](https://hamidsamak.github.io/pheditor/assets/image/screenrecord-desktop.gif "Pheditor PHP file editor")
+![Pheditor - PHP file Editor](https://pheditor.ir/assets/image/screenrecord-desktop.gif "Pheditor PHP file editor")
 
 ### Features
 1. Editor with syntax highlighting
@@ -19,7 +19,7 @@ Pheditor is a single-file editor and file manager written in PHP.
 ### Install & Usage
 
 Install using composer:
-`composer create-project hamidsamak/pheditor`
+`composer create-project pheditor/pheditor`
 
 or just upload `pheditor.php` to your web host (and/or rename it as you wish).
 
