@@ -19,7 +19,7 @@ Pheditor is a single-file editor and file manager written in PHP.
 ### Install & Usage
 
 Install using composer:
-`composer create-project pheditor/pheditor`
+`composer create-project hamidsamak/pheditor`
 
 or just upload `pheditor.php` to your web host (and/or rename it as you wish).
 
