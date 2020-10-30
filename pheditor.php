@@ -325,8 +325,9 @@ if (isset($_POST['action'])) {
 				$dir = $_POST['dir'];
 
 				$command_found = false;
+				$terminal_commands = explode(',', TERMINAL_COMMANDS);
 
-				foreach (explode(',', TERMINAL_COMMANDS) as $value) {
+				foreach ($terminal_commands as $value) {
 					$value = trim($value);
 
 					if (strlen($command) >= strlen($value) && substr($command, 0, strlen($value)) == $value) {
@@ -337,7 +338,7 @@ if (isset($_POST['action'])) {
 				}
 
 				if ($command_found === false) {
-					echo json_error("Command not allowed\n");
+					echo json_error("Command not allowed\nAvailable commands:\n" . implode(' | ', $terminal_commands) . "\n");
 
 					exit;
 				}
@@ -583,8 +584,8 @@ function json_success($message, $params = [])
 
 		#terminal pre {
 			background: black;
-			color: #fff;
-			padding: 5px 10px;
+			color: #ccc;
+			padding: 5px 10px 10px 10px;
 			border-radius: 5px 5px 0 0;
 			margin: 5px 0 0 0;
 			height: 200px;
@@ -623,6 +624,10 @@ function json_success($message, $params = [])
 
 		#terminal span.toggle.collapsed i::before {
 			content: "\f105";
+		}
+
+		#terminal span.command {
+			color: #eee;
 		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -1141,47 +1146,54 @@ function json_success($message, $params = [])
 			var terminal_dir = "";
 
 			$("#terminal .command").keydown(function(event) {
-				if (event.keyCode == 13 && $(this).val().length > 0) {
-					var _this = $(this)
-					_val = _this.val();
+				if (event.keyCode == 13) {
+					if ($(this).val().length > 0) {
+						var _this = $(this)
+						_val = _this.val();
 
-					if (_val.toLowerCase() == "clear") {
-						$("#terminal pre").html("");
-						_this.val("").focus();
+						if (_val.toLowerCase() == "clear") {
+							$("#terminal pre").html("");
+							_this.val("").focus();
 
-						return true;
-					}
-
-					_this.prop("disabled", true);
-					$("#terminal pre").append("> " + _val + "\n");
-					$("#terminal pre").animate({
-						scrollTop: $("#terminal pre").prop("scrollHeight")
-					});
-
-					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-						action: "terminal",
-						command: _val,
-						dir: terminal_dir
-					}, function(data) {
-						if (data.error) {
-							$("#terminal pre").append(data.message);
-						} else {
-							if (data.dir != null) {
-								terminal_dir = data.dir;
-							}
-
-							if (data.result == null) {
-								data.result = "Command not found\n";
-							}
-
-							$("#terminal pre").append(data.result);
+							return true;
 						}
 
+						_this.prop("disabled", true);
+						$("#terminal pre").append("<span class=\"command\">&gt; " + _val + "</span>\n");
 						$("#terminal pre").animate({
 							scrollTop: $("#terminal pre").prop("scrollHeight")
 						});
-						_this.val("").prop("disabled", false).focus();
-					});
+
+						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+							action: "terminal",
+							command: _val,
+							dir: terminal_dir
+						}, function(data) {
+							if (data.error) {
+								$("#terminal pre").append(data.message);
+							} else {
+								if (data.dir != null) {
+									terminal_dir = data.dir;
+								}
+
+								if (data.result == null) {
+									data.result = "Command not found\n";
+								}
+
+								$("#terminal pre").append(data.result);
+							}
+
+							$("#terminal pre").stop().animate({
+								scrollTop: $("#terminal pre").prop("scrollHeight")
+							});
+							_this.val("").prop("disabled", false).focus();
+						});
+					} else {
+						$("#terminal pre").append("\n");
+						$("#terminal pre").stop().animate({
+							scrollTop: $("#terminal pre").prop("scrollHeight")
+						});
+					}
 				}
 			});
 
