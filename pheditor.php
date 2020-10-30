@@ -484,6 +484,7 @@ function json_success($message, $params = [])
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 	<style type="text/css">
 		h1,
 		h1 a,
@@ -614,6 +615,14 @@ function json_success($message, $params = [])
 
 		#terminal #prompt:fullscreen input.command {
 			border-radius: 0;
+		}
+
+		#terminal span.toggle i::before {
+			content: "\f107";
+		}
+
+		#terminal span.toggle.collapsed i::before {
+			content: "\f105";
 		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -1356,7 +1365,7 @@ function json_success($message, $params = [])
 									<button type="button" class="btn btn-light float-right ml-1 clear" style="display: none;">Clear</button>
 									<button type="button" class="btn btn-light float-right ml-1 copy" style="display: none;">Copy to clipboard</button>
 									<button type="button" class="btn btn-light float-right ml-1 fullscreen" style="display: none;">Full Screen</button>
-									<span class="toggle" data-toggle="collapse" data-target="#prompt">Terminal</span>
+									<span class="toggle collapsed" data-toggle="collapse" data-target="#prompt"><i class="fa"></i> Terminal</span>
 									<div style="clear:both"></div>
 								</div>
 								<div id="prompt" class="collapse">
