@@ -943,10 +943,6 @@ function json_success($message, $params = [])
 
 			$(window).resize();
 
-			$(".alert").click(function() {
-				$(this).fadeOut();
-			});
-
 			$(document).bind("keyup keydown", function(event) {
 				if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
 					if (event.keyCode == 78) {
@@ -1393,8 +1389,6 @@ function json_success($message, $params = [])
 		</div>
 
 	</div>
-
-	<div class="alert"></div>
 
 	<form method="post">
 		<input name="action" type="hidden" value="upload-file">
