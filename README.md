@@ -45,6 +45,7 @@ The settings are as below:
 8. Changing main directory (`MAIN_DIR`)
 9. Enable/Disable Terminal
 10. Define allowed terminal commands
+11. Change editor theme (`EDITOR_THEME`) ([theme list](https://codemirror.net/demo/theme.html))
 
 ---
 
