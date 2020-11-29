@@ -21,8 +21,9 @@ define('MAX_HISTORY_FILES', 5);
 define('WORD_WRAP', true);
 define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile,terminal'); // empty means all
 define('PATTERN_FILES', '/^[A-Za-z0-9-_.\/]*\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
-define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empy means no pattern
+define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empty means no pattern
 define('TERMINAL_COMMANDS', 'ls,ll,cp,rm,mv,whoami,pidof,pwd,whereis,kill,php,date,cd,mkdir,chmod,chown,rmdir,touch,cat,git,find,grep,echo,tar,zip,unzip,whatis,composer,help');
+define('EDITOR_THEME', ''); // e.g. monokai
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
 	die('Your IP address is not allowed to access this page.');
@@ -484,6 +485,9 @@ function json_success($message, $params = [])
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.css">
+	<?php if (empty(EDITOR_THEME) === false) : ?>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/<?= EDITOR_THEME ?>.css">
+	<?php endif; ?>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 	<style type="text/css">
@@ -724,6 +728,9 @@ function json_success($message, $params = [])
 
 		$(function() {
 			editor = CodeMirror.fromTextArea($("#editor")[0], {
+				<?php if (empty(EDITOR_THEME) === false) : ?>
+					theme: "<?= EDITOR_THEME ?>",
+				<?php endif; ?>
 				lineNumbers: true,
 				mode: "application/x-httpd-php",
 				indentUnit: 4,
