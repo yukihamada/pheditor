@@ -19,7 +19,7 @@ Pheditor is a single-file editor and file manager written in PHP.
 ### Install & Usage
 
 Install using composer:
-`composer create-project hamidsamak/pheditor`
+`composer create-project pheditor/pheditor`
 
 or just upload `pheditor.php` to your web host (and/or rename it as you wish).
 
@@ -64,6 +64,7 @@ The settings are as below:
 11. Persistent search `Alt + F`
 12. Go to line `Alt (Option) + G`
 13. Toggle Terminal `Ctrl (CMD) + Shift + L`
+14. Terminal history (Up & Down arrow keys)
 
 ---
 
