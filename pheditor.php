@@ -669,7 +669,8 @@ function json_success($message, $params = [])
 				"md": "text/x-markdown"
 			},
 			last_keyup_press = false,
-			last_keyup_double = false;
+			last_keyup_double = false,
+			terminal_history = 1;
 
 		function alertBox(title, message, color) {
 			iziToast.show({
@@ -1171,6 +1172,20 @@ function json_success($message, $params = [])
 							scrollTop: $("#terminal pre").prop("scrollHeight")
 						});
 
+						var terminal_commands = $.parseJSON(getCookie("terminal_commands"));
+
+						if (terminal_commands === false) {
+							terminal_commands = [];
+						}
+
+						terminal_commands.push(_val);
+
+						if (terminal_commands.length > 50) {
+							terminal_commands = terminal_commands.slice(1);
+						}
+
+						setCookie("terminal_commands", JSON.stringify(terminal_commands));
+
 						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
 							action: "terminal",
 							command: _val,
@@ -1200,6 +1215,24 @@ function json_success($message, $params = [])
 						$("#terminal pre").stop().animate({
 							scrollTop: $("#terminal pre").prop("scrollHeight")
 						});
+					}
+				} else if (event.keyCode == 38) {
+					var terminal_commands = $.parseJSON(getCookie("terminal_commands"));
+
+					if (terminal_commands && terminal_commands[terminal_commands.length - terminal_history]) {
+						$(this).val(terminal_commands[terminal_commands.length - terminal_history]);
+
+						terminal_history += 1;
+					}
+				} else if (event.keyCode == 40) {
+					if (terminal_history > 1) {
+						var terminal_commands = $.parseJSON(getCookie("terminal_commands"));
+
+						if (terminal_commands && terminal_commands[terminal_commands.length - terminal_history + 2]) {
+							$(this).val(terminal_commands[terminal_commands.length - terminal_history + 2]);
+
+							terminal_history -= 1;
+						}
 					}
 				}
 			});
