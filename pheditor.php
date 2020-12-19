@@ -950,7 +950,7 @@ function json_success($message, $params = [])
 
 			$(window).resize();
 
-			$(document).bind("keyup keydown", function(event) {
+			$(document).bind("keyup", function(event) {
 				if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
 					if (event.keyCode == 78) {
 						$(".dropdown .new-file").click();
