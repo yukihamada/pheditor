@@ -22,7 +22,7 @@ define('WORD_WRAP', true);
 define('PERMISSIONS', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile,terminal'); // empty means all
 define('PATTERN_FILES', '/^[A-Za-z0-9-_.\/]*\.(txt|php|htm|html|js|css|tpl|md|xml|json)$/i'); // empty means no pattern
 define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empty means no pattern
-define('TERMINAL_COMMANDS', 'ls,ll,cp,rm,mv,whoami,pidof,pwd,whereis,kill,php,date,cd,mkdir,chmod,chown,rmdir,touch,cat,git,find,grep,echo,tar,zip,unzip,whatis,composer,help');
+define('TERMINAL_COMMANDS', 'ls,ll,cp,rm,mv,whoami,pidof,pwd,whereis,kill,php,date,cd,mkdir,chmod,chown,rmdir,touch,cat,git,find,grep,echo,tar,zip,unzip,whatis,composer,help,locate');
 define('EDITOR_THEME', ''); // e.g. monokai
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
@@ -339,7 +339,11 @@ if (isset($_POST['action'])) {
 				}
 
 				if ($command_found === false) {
-					echo json_error("Command not allowed\nAvailable commands:\n" . implode(' | ', $terminal_commands) . "\n");
+					foreach ($terminal_commands as $key => $value) {
+						$commands[$key % 3] = isset($commands[$key % 3]) ? $commands[$key % 3] . "\t" . $value : $value;
+					}
+
+					echo json_error("<span class=\"text-danger\">Command not allowed</span>\n<span class=\"text-success\">Available commands:</span>\n" . implode("\n", $commands) . "\n");
 
 					exit;
 				}
