@@ -109,9 +109,15 @@ if (isset($_POST['action'])) {
 		if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, basename($_POST['file']))) {
 			die(json_error('Invalid file pattern'));
 		}
+	}
 
-		if (strpos($_POST['file'], '../') !== false || strpos($_POST['file'], '..\'') !== false) {
-			die(json_error('Invalid file pattern'));
+	foreach (['file', 'dir', 'path', 'name', 'destination'] as $value) {
+		if (isset($_POST[$value]) && empty($_POST[$value]) === false) {
+			$value = urldecode($_POST[$value]);
+
+			if (strpos($value, '../') !== false || strpos($value, '..\\') !== false) {
+				die(json_error('Invalid path'));
+			}
 		}
 	}
 
@@ -324,6 +330,12 @@ if (isset($_POST['action'])) {
 
 				$command  = $_POST['command'];
 				$dir = $_POST['dir'];
+
+				if (strpos($command, '&') !== false || strpos($command, ';')) {
+					echo json_error("Illegal character in command (& ;)\n");
+
+					exit;
+				}
 
 				$command_found = false;
 				$terminal_commands = explode(',', TERMINAL_COMMANDS);
