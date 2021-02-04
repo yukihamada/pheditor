@@ -728,15 +728,15 @@ function json_success($message, $params = [])
 				timeout = "";
 			}
 
-			document.cookie = name + "=" + value + timeout + "; path=/";
+			document.cookie = name + "=" + encodeURIComponent(value) + timeout + "; path=/";
 		}
 
 		function getCookie(name) {
-			var cookies = decodeURIComponent(document.cookie).split(';');
+			var cookies = document.cookie.split(';');
 
 			for (var i = 0; i < cookies.length; i++) {
 				if (cookies[i].trim().indexOf(name + "=") == 0) {
-					return cookies[i].trim().substring(name.length + 1).trim();
+					return decodeURIComponent(cookies[i].trim().substring(name.length + 1).trim());
 				}
 			}
 
