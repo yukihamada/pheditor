@@ -331,8 +331,8 @@ if (isset($_POST['action'])) {
 				$command  = $_POST['command'];
 				$dir = $_POST['dir'];
 
-				if (strpos($command, '&') !== false || strpos($command, ';') !== false) {
-					echo json_error("Illegal character in command (& ;)\n");
+				if (strpos($command, '&') !== false || strpos($command, ';') !== false || strpos($command, '||') !== false) {
+					echo json_error("Illegal character(s) in command (& ; ||)\n");
 
 					exit;
 				}
