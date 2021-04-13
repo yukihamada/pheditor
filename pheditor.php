@@ -673,6 +673,7 @@ function json_success($message, $params = [])
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/jump-to-line.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
 	<script type="text/javascript">
 		var editor,
 			modes = {
@@ -710,12 +711,6 @@ function json_success($message, $params = [])
 				if (hash) {
 					$("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
 				}
-			});
-		}
-
-		function sha512(string) {
-			return crypto.subtle.digest("SHA-512", new TextEncoder("UTF-8").encode(string)).then(buffer => {
-				return Array.prototype.map.call(new Uint8Array(buffer), x => (("00" + x.toString(16)).slice(-2))).join("");
 			});
 		}
 
@@ -859,9 +854,7 @@ function json_success($message, $params = [])
 					data = editor.getValue();
 
 				if (path.length > 0) {
-					sha512(data).then(function(digest) {
-						$("#digest").val(digest);
-					});
+					$("#digest").val(sha512(data));
 
 					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
 						action: "save",
@@ -1025,63 +1018,59 @@ function json_success($message, $params = [])
 					data = editor.getValue();
 
 				if (hash.length > 0) {
-					sha512(data).then(function(digest) {
-						if ($("#digest").val().length < 1 || $("#digest").val() == digest) {
-							if (hash.substring(hash.length - 1) == "/") {
-								var dir = $("a[data-dir='" + hash + "']");
+					if ($("#digest").val().length < 1 || $("#digest").val() == sha512(data)) {
+						if (hash.substring(hash.length - 1) == "/") {
+							var dir = $("a[data-dir='" + hash + "']");
 
-								if (dir.length > 0) {
-									editor.setValue("");
-									$("#digest").val("");
-									$("#path").html(hash);
-									$(".dropdown").find(".save, .reopen, .close").addClass("disabled");
-									$(".dropdown").find(".delete, .rename").removeClass("disabled");
-								}
-							} else {
-								var file = $("a[data-file='" + hash + "']");
-
-								if (file.length > 0) {
-									$("#loading").fadeIn(250);
-
-									$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-										action: "open",
-										file: encodeURIComponent(hash)
-									}, function(data) {
-										if (data.error == true) {
-											alertBox("Error", data.message, "red");
-
-											return false;
-										}
-
-										editor.setValue(data.data);
-										editor.setOption("mode", "application/x-httpd-php");
-
-										sha512(data.data).then(function(digest) {
-											$("#digest").val(digest);
-										});
-
-										if (hash.lastIndexOf(".") > 0) {
-											var extension = hash.substring(hash.lastIndexOf(".") + 1);
-
-											if (modes[extension]) {
-												editor.setOption("mode", modes[extension]);
-											}
-										}
-
-										$("#editor").attr("data-file", hash);
-										$("#path").html(hash).hide().fadeIn(250);
-										$(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
-
-										$("#loading").fadeOut(250);
-									});
-								}
+							if (dir.length > 0) {
+								editor.setValue("");
+								$("#digest").val("");
+								$("#path").html(hash);
+								$(".dropdown").find(".save, .reopen, .close").addClass("disabled");
+								$(".dropdown").find(".delete, .rename").removeClass("disabled");
 							}
-						} else if (confirm("Discard changes?")) {
-							$("#digest").val("");
+						} else {
+							var file = $("a[data-file='" + hash + "']");
 
-							$(window).trigger("hashchange");
+							if (file.length > 0) {
+								$("#loading").fadeIn(250);
+
+								$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+									action: "open",
+									file: encodeURIComponent(hash)
+								}, function(data) {
+									if (data.error == true) {
+										alertBox("Error", data.message, "red");
+
+										return false;
+									}
+
+									editor.setValue(data.data);
+									editor.setOption("mode", "application/x-httpd-php");
+
+									$("#digest").val(sha512(data.data));
+
+									if (hash.lastIndexOf(".") > 0) {
+										var extension = hash.substring(hash.lastIndexOf(".") + 1);
+
+										if (modes[extension]) {
+											editor.setOption("mode", modes[extension]);
+										}
+									}
+
+									$("#editor").attr("data-file", hash);
+									$("#path").html(hash).hide().fadeIn(250);
+									$(".dropdown").find(".save, .delete, .rename, .reopen, .close").removeClass("disabled");
+
+									$("#loading").fadeOut(250);
+								});
+							}
 						}
-					});
+					} else if (confirm("Discard changes?")) {
+						$("#digest").val("");
+
+						$(window).trigger("hashchange");
+					}
 				}
 			});
 
