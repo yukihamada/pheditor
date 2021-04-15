@@ -46,6 +46,7 @@ The settings are as below:
 9. Enable/Disable Terminal
 10. Define allowed terminal commands
 11. Change editor theme (`EDITOR_THEME`) ([theme list](https://codemirror.net/demo/theme.html))
+12. New file and directory permissions (`DEFAULT_DIR_PERMISSION` and `DEFAULT_FILE_PERMISSION`)
 
 ---
 
