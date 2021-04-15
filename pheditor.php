@@ -24,6 +24,8 @@ define('PATTERN_FILES', '/^[A-Za-z0-9-_.\/]*\.(txt|php|htm|html|js|css|tpl|md|xm
 define('PATTERN_DIRECTORIES', '/^((?!backup).)*$/i'); // empty means no pattern
 define('TERMINAL_COMMANDS', 'ls,ll,cp,rm,mv,whoami,pidof,pwd,whereis,kill,php,date,cd,mkdir,chmod,chown,rmdir,touch,cat,git,find,grep,echo,tar,zip,unzip,whatis,composer,help,locate,pkill');
 define('EDITOR_THEME', ''); // e.g. monokai
+define('DEFAULT_DIR_PERMISSION', 0755);
+define('DEFAULT_FILE_PERMISSION', 0644);
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
 	die('Your IP address is not allowed to access this page.');
@@ -143,6 +145,10 @@ if (isset($_POST['action'])) {
 
 					file_put_contents($file, $_POST['data']);
 
+					if (function_exists('chmod')) {
+						chmod($file, DEFAULT_FILE_PERMISSION);
+					}
+
 					echo json_success('File saved successfully');
 				} else if (is_writable($file) === false) {
 					echo json_error('File is not writable');
@@ -170,7 +176,11 @@ if (isset($_POST['action'])) {
 			$dir = MAIN_DIR . $_POST['dir'];
 
 			if (file_exists($dir) === false) {
-				mkdir($dir);
+				mkdir($dir, DEFAULT_DIR_PERMISSION);
+
+				if (function_exists('chmod')) {
+					chmod($dir, DEFAULT_DIR_PERMISSION);
+				}
 
 				echo json_success('Directory created successfully');
 			} else {
