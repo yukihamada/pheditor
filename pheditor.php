@@ -102,7 +102,74 @@ if (count($permissions) < 1) {
 	$permissions = explode(',', 'newfile,newdir,editfile,deletefile,deletedir,renamefile,renamedir,changepassword,uploadfile');
 }
 
-if (isset($_POST['action'])) {
+if (isset($_GET['path'])) {
+	header('Content-Type: application/json');
+
+	$dir = rtrim(MAIN_DIR . DS . trim($_GET['path'], '/'), '/');
+
+	if (file_exists($dir) === false || is_dir($dir) === false) {
+		die('[]');
+	}
+
+	$files = array_slice(scandir($dir), 2);
+	$list = [];
+
+	asort($files);
+
+	foreach ($files as $key => $file) {
+		if (substr($file, 0, 1) === '.' || (SHOW_PHP_SELF === false && $dir . DS . $file == __FILE__)) {
+			continue;
+		}
+
+		if (is_dir($dir . DS . $file) && (empty(PATTERN_DIRECTORIES) || preg_match(PATTERN_DIRECTORIES, $file))) {
+			$dir_path = str_replace(MAIN_DIR, '', $dir . DS . $file . DS);
+
+			$list[] = [
+				'text' => $file,
+				'icon' => 'far fa-folder',
+				'children' => true,
+				'a_attr' => [
+					'href' => '#' . $dir_path,
+					'data-dir' => $dir_path
+				],
+				'state' => [
+					'selected' => false,
+				],
+			];
+		} else if (empty(PATTERN_FILES) || preg_match(PATTERN_FILES, $file)) {
+			$file_path = str_replace(MAIN_DIR, '', $dir . DS . $file);
+
+			$list[] = [
+				'text' => $file,
+				'icon' => 'far fa-file',
+				'a_attr' => [
+					'href' => '#' . $file_path,
+					'data-file' => $file_path
+				],
+				'state' => [
+					'selected' => false,
+				],
+			];
+		}
+	}
+
+	if (empty($_GET['path'])) {
+		$list = [
+			'text' => '/',
+			'icon' => 'far fa-folder',
+			'children' => $list,
+			'a_attr' => [
+				'href' => '#/',
+				'data-dir' => '/',
+			],
+			'state' => [
+				'selected' => false,
+			],
+		];
+	}
+
+	die(json_encode($list, JSON_UNESCAPED_UNICODE));
+} else if (isset($_POST['action'])) {
 	header('Content-Type: application/json');
 
 	if (isset($_POST['file']) && empty($_POST['file']) === false) {
@@ -395,44 +462,6 @@ if (isset($_POST['action'])) {
 	exit;
 }
 
-function files($dir, $first = true)
-{
-	$data = '';
-
-	if ($first === true) {
-		$data .= '<ul><li data-jstree=\'{ "opened" : true }\'><a href="#/" class="open-dir" data-dir="/">' . basename($dir) . '</a>';
-	}
-
-	$data .= '<ul class="files">';
-	$files = array_slice(scandir($dir), 2);
-
-	asort($files);
-
-	foreach ($files as $key => $file) {
-		if ((SHOW_PHP_SELF === false && $dir . DS . $file == __FILE__) || (SHOW_HIDDEN_FILES === false && substr($file, 0, 1) === '.')) {
-			continue;
-		}
-
-		if (is_dir($dir . DS . $file) && (empty(PATTERN_DIRECTORIES) || preg_match(PATTERN_DIRECTORIES, $file))) {
-			$dir_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
-
-			$data .= '<li class="dir"><a href="#/' . $dir_path . '/" class="open-dir" data-dir="/' . $dir_path . '/">' . $file . '</a>' . files($dir . DS . $file, false) . '</li>';
-		} else if (empty(PATTERN_FILES) || preg_match(PATTERN_FILES, $file)) {
-			$file_path = str_replace(MAIN_DIR . DS, '', $dir . DS . $file);
-
-			$data .= '<li class="file ' . (is_writable($file_path) ? 'editable' : null) . '" data-jstree=\'{ "icon" : "jstree-file" }\'><a href="#/' . $file_path . '" data-file="/' . $file_path . '" class="open-file">' . $file . '</a></li>';
-		}
-	}
-
-	$data .= '</ul>';
-
-	if ($first === true) {
-		$data .= '</li></ul>';
-	}
-
-	return $data;
-}
-
 function redirect($address = null)
 {
 	if (empty($address)) {
@@ -515,7 +544,7 @@ function json_success($message, $params = [])
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/<?= EDITOR_THEME ?>.css">
 	<?php endif; ?>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 	<style type="text/css">
 		h1,
 		h1 a,
@@ -659,6 +688,14 @@ function json_success($message, $params = [])
 		#terminal span.command {
 			color: #eee;
 		}
+
+		.fa-file {
+			color: #000;
+		}
+
+		.fa-folder {
+			color: #f5c205;
+		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -693,7 +730,8 @@ function json_success($message, $params = [])
 			},
 			last_keyup_press = false,
 			last_keyup_double = false,
-			terminal_history = 1;
+			terminal_history = 1,
+			jstree_hashchange = true;
 
 		function alertBox(title, message, color) {
 			iziToast.show({
@@ -703,24 +741,6 @@ function json_success($message, $params = [])
 				position: "bottomRight",
 				transitionIn: "fadeInUp",
 				transitionOut: "fadeOutRight",
-			});
-		}
-
-		function reloadFiles(hash) {
-			$.post("<?= $_SERVER['PHP_SELF'] ?>", {
-				action: "reload"
-			}, function(data) {
-				$("#files > div").jstree("destroy");
-				$("#files > div").html(data.data);
-				$("#files > div").jstree();
-				$("#files > div a:first").click();
-				$("#path").html("");
-
-				window.location.hash = hash || "/";
-
-				if (hash) {
-					$("#files a[data-file=\"" + hash + "\"], #files a[data-dir=\"" + hash + "\"]").click();
-				}
 			});
 		}
 
@@ -762,11 +782,38 @@ function json_success($message, $params = [])
 				lint: true
 			});
 
-			$("#files > div").jstree({
+			$("#files > div").on("load_node.jstree", function(a, b) {
+				if (b.node.a_attr && b.node.a_attr.href != undefined) {
+					var hash = window.location.hash;
+					if (hash.indexOf(b.node.a_attr.href) == 0 && hash.replace(b.node.a_attr.href, "").indexOf("/") < 0) {
+						setTimeout(function() {
+							$("[data-file='" + hash.substring(1) + "']").click();
+
+							$(window).trigger("hashchange");
+						}, 250);
+					}
+				}
+			}).jstree({
 				state: {
 					key: "pheditor"
 				},
-				plugins: ["state"]
+				plugins: ["state", "sort"],
+				core: {
+					data: {
+						url: function(node) {
+							return node.id == "#" ? "<?= $_SERVER['PHP_SELF'] ?>?path=" : "<?= $_SERVER['PHP_SELF'] ?>?path=" + node.a_attr["data-dir"];
+						}
+					}
+				},
+				'sort': function(a, b) {
+					a1 = this.get_node(a);
+					b1 = this.get_node(b);
+					if (a1.icon == b1.icon) {
+						return (a1.text > b1.text) ? 1 : -1;
+					} else {
+						return (a1.icon > b1.icon) ? -1 : 1;
+					}
+				}
 			});
 
 			$("#files").on("dblclick", "a[data-file]", function(event) {
@@ -819,7 +866,11 @@ function json_success($message, $params = [])
 							alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
 
 							if (data.error == false) {
-								reloadFiles();
+								$("#files > div").jstree("refresh");
+
+								setTimeout(function() {
+									$("[data-file='" + file + "']").click();
+								}, 250);
 							}
 						});
 					}
@@ -850,7 +901,11 @@ function json_success($message, $params = [])
 							alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
 
 							if (data.error == false) {
-								reloadFiles();
+								$("#files > div").jstree("refresh");
+
+								setTimeout(function() {
+									$("[data-dir='" + dir + "/']").click();
+								}, 250);
 							}
 						});
 					}
@@ -896,7 +951,7 @@ function json_success($message, $params = [])
 							alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
 
 							if (data.error == false) {
-								reloadFiles();
+								$("#files > div").jstree("refresh");
 							}
 						});
 					}
@@ -932,7 +987,7 @@ function json_success($message, $params = [])
 							alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
 
 							if (data.error == false) {
-								reloadFiles(path.substring(0, path.lastIndexOf("/")) + "/" + name);
+								$("#files > div").jstree("refresh");
 							}
 						});
 					}
@@ -1156,7 +1211,7 @@ function json_success($message, $params = [])
 						alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
 
 						if (data.error == false) {
-							reloadFiles();
+							$("#files > div").jstree("refresh");
 						}
 					}
 				});
@@ -1398,7 +1453,7 @@ function json_success($message, $params = [])
 		<div class="row px-3">
 			<div class="col-lg-3 col-md-3 col-sm-12 col-12">
 				<div id="files" class="card">
-					<div class="card-block"><?= files(MAIN_DIR) ?></div>
+					<div class="card-block"></div>
 				</div>
 			</div>
 
