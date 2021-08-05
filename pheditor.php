@@ -540,6 +540,7 @@ function json_success($message, $params = [])
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/monokai.css">
 	<?php if (empty(EDITOR_THEME) === false) : ?>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/<?= EDITOR_THEME ?>.css">
 	<?php endif; ?>
@@ -635,6 +636,7 @@ function json_success($message, $params = [])
 
 		#terminal {
 			padding: 5px 10px;
+			border-radius: .25rem;
 		}
 
 		#terminal .toggle {
@@ -695,6 +697,68 @@ function json_success($message, $params = [])
 
 		.fa-folder {
 			color: #f5c205;
+		}
+
+		.dark-mode-button {
+			display: inline;
+			float: left;
+			margin-right: 10px;
+			padding-top: 4px;
+			border-radius: .2rem;
+		}
+
+		.dark-mode-button>label {
+			margin: 0 10px 4px 10px;
+		}
+
+		body.dark-mode {
+			background: #2b373d;
+			color: #fff;
+		}
+
+		body.dark-mode #files,
+		body.dark-mode #terminal,
+		body.dark-mode .btn-secondary,
+		body.dark-mode .dropdown-menu {
+			background: #445760;
+		}
+
+		body.dark-mode a,
+		body.dark-mode #path,
+		body.dark-mode .btn-light {
+			color: #fff;
+		}
+
+		body.dark-mode .card {
+			background-color: transparent;
+		}
+
+		body.dark-mode .far.fa-folder,
+		body.dark-mode .far.fa-file {
+			font-weight: 900;
+		}
+
+		body.dark-mode .jstree-default .jstree-leaf>.jstree-ocl,
+		body.dark-mode .jstree-default .jstree-open>.jstree-ocl {
+			filter: invert(1);
+		}
+
+		body.dark-mode .far.fa-file {
+			color: #eee;
+		}
+
+		body.dark-mode .jstree-clicked,
+		body.dark-mode .jstree-clicked i {
+			color: #444 !important;
+		}
+
+		body.dark-mode #terminal .btn-light {
+			background: #2b373d;
+			border-color: transparent;
+		}
+
+		body.dark-mode .dark-mode-button {
+			background: #445760 !important;
 		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -1391,6 +1455,24 @@ function json_success($message, $params = [])
 					$(window).resize();
 				}
 			});
+
+			$(".dark-mode-button input").change(function() {
+				if ($(this).prop("checked") == true) {
+					$("body").addClass("dark-mode");
+					editor.setOption("theme", "monokai");
+
+					setCookie("dark_mode", "1", 30 * 86400);
+				} else {
+					$("body").removeClass("dark-mode");
+					editor.setOption("theme", "");
+
+					setCookie("dark_mode", "0", 30 * 86400 * -1);
+				}
+			});
+
+			if (getCookie("dark_mode") == "1") {
+				$(".dark-mode-button input").click();
+			}
 		});
 	</script>
 </head>
@@ -1445,6 +1527,11 @@ function json_success($message, $params = [])
 				</div>
 
 				<div class="float-right">
+					<div class="custom-control custom-switch dark-mode-button bg-light">
+						<input type="checkbox" class="custom-control-input" id="dark_mode">
+						<label class="custom-control-label" for="dark_mode"><i class="far fa-moon"></i></label>
+					</div>
+
 					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary">Password</a> &nbsp; <?php } ?><a href="<?= $_SERVER['PHP_SELF'] ?>?logout=1" class="btn btn-sm btn-danger">Logout</a>
 				</div>
 			</div>
