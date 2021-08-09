@@ -1532,7 +1532,7 @@ function json_success($message, $params = [])
 						<label class="custom-control-label" for="dark_mode"><i class="far fa-moon"></i></label>
 					</div>
 
-					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary">Password</a> &nbsp; <?php } ?><a href="<?= $_SERVER['PHP_SELF'] ?>?logout=1" class="btn btn-sm btn-danger">Logout</a>
+					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary"><i class="fas fa-key"></i></a> &nbsp; <?php } ?><a href="<?= $_SERVER['PHP_SELF'] ?>?logout=1" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt"></i></a>
 				</div>
 			</div>
 		</div>
