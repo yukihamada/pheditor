@@ -711,7 +711,9 @@ function json_success($message, $params = [])
 			margin: 0 10px 4px 10px;
 		}
 
-		body.dark-mode {
+		body.dark-mode,
+		body.dark-mode .modal-header,
+		body.dark-mode .modal-footer {
 			background: #2b373d;
 			color: #fff;
 		}
@@ -719,13 +721,15 @@ function json_success($message, $params = [])
 		body.dark-mode #files,
 		body.dark-mode #terminal,
 		body.dark-mode .btn-secondary,
-		body.dark-mode .dropdown-menu {
+		body.dark-mode .dropdown-menu,
+		body.dark-mode .modal-body {
 			background: #445760;
 		}
 
 		body.dark-mode a,
 		body.dark-mode #path,
-		body.dark-mode .btn-light {
+		body.dark-mode .btn-light,
+		body.dark-mode .modal-header .close {
 			color: #fff;
 		}
 
@@ -759,6 +763,19 @@ function json_success($message, $params = [])
 
 		body.dark-mode .dark-mode-button {
 			background: #445760 !important;
+		}
+
+		body.dark-mode .text-muted {
+			color: #eee !important;
+		}
+
+		body.dark-mode .modal-content {
+			background-color: transparent;
+		}
+
+		body.dark-mode .modal-header,
+		body.dark-mode .modal-footer {
+			border: 0;
 		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -1464,7 +1481,7 @@ function json_success($message, $params = [])
 					setCookie("dark_mode", "1", 30 * 86400);
 				} else {
 					$("body").removeClass("dark-mode");
-					editor.setOption("theme", "");
+					editor.setOption("theme", "default");
 
 					setCookie("dark_mode", "0", 30 * 86400 * -1);
 				}
@@ -1591,7 +1608,7 @@ function json_success($message, $params = [])
 		<input name="action" type="hidden" value="upload-file">
 		<input name="destination" type="hidden" value="">
 
-		<div class="modal" id="uploadFileModal">
+		<div class="modal fade" id="uploadFileModal">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
