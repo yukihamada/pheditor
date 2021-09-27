@@ -26,6 +26,87 @@ define('TERMINAL_COMMANDS', 'ls,ll,cp,rm,mv,whoami,pidof,pwd,whereis,kill,php,da
 define('EDITOR_THEME', ''); // e.g. monokai
 define('DEFAULT_DIR_PERMISSION', 0755);
 define('DEFAULT_FILE_PERMISSION', 0644);
+define('LOCAL_ASSETS', false); // if true you should run `npm i` to download required libraries
+
+$assets = [
+	'cdn' => [
+		'css' => [
+			'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/monokai.css',
+			empty(EDITOR_THEME) ? '' : 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/' . EDITOR_THEME . '.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css',
+		],
+		'js' => [
+			'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/javascript/javascript.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/css/css.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/php/php.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/xml/xml.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/htmlmixed/htmlmixed.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/markdown/markdown.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/clike/clike.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/jshint/2.10.2/jshint.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/javascript-lint.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/json-lint.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/css-lint.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/search.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/searchcursor.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/jump-to-line.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js'
+		],
+	],
+	'local' => [
+		'css' => [
+			'node_modules/bootstrap/dist/css/bootstrap.min.css',
+			'node_modules/jstree/dist/themes/default/style.min.css',
+			'node_modules/codemirror/lib/codemirror.css',
+			'node_modules/codemirror/addon/lint/lint.css',
+			'node_modules/codemirror/addon/dialog/dialog.css',
+			'node_modules/codemirror//theme/monokai.css',
+			empty(EDITOR_THEME) ? '' : 'node_modules/codemirror/theme/' . EDITOR_THEME . '.css',
+			'node_modules/izitoast/dist/css/iziToast.min.css',
+			'node_modules/@fortawesome/fontawesome-free/css/all.min.css',
+		],
+		'js' => [
+			'node_modules/jquery/dist/jquery.min.js',
+			'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
+			'node_modules/jstree/dist/jstree.min.js',
+			'node_modules/codemirror/lib/codemirror.js',
+			'node_modules/codemirror/mode/javascript/javascript.js',
+			'node_modules/codemirror/mode/css/css.js',
+			'node_modules/codemirror/mode/php/php.js',
+			'node_modules/codemirror/mode/xml/xml.js',
+			'node_modules/codemirror/mode/htmlmixed/htmlmixed.js',
+			'node_modules/codemirror/mode/markdown/markdown.js',
+			'node_modules/codemirror/mode/clike/clike.js',
+			'node_modules/jshint/dist/jshint.js',
+			'node_modules/jsonlint/lib/jsonlint.js',
+			'node_modules/codemirror/addon/lint/lint.js',
+			'node_modules/codemirror/addon/lint/javascript-lint.js',
+			'node_modules/codemirror/addon/lint/json-lint.js',
+			'node_modules/codemirror/addon/lint/css-lint.js',
+			'node_modules/codemirror/addon/search/search.js',
+			'node_modules/codemirror/addon/search/searchcursor.js',
+			'node_modules/codemirror/addon/search/jump-to-line.js',
+			'node_modules/codemirror/addon/dialog/dialog.js',
+			'node_modules/izitoast/dist/js/iziToast.min.js',
+			'node_modules/js-sha512/build/sha512.min.js'
+		],
+	],
+];
 
 if (empty(ACCESS_IP) === false && ACCESS_IP != $_SERVER['REMOTE_ADDR']) {
 	die('Your IP address is not allowed to access this page.');
@@ -535,17 +616,13 @@ function json_success($message, $params = [])
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Pheditor</title>
 	<link id="favicon" rel="shortcut icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAaVBMVEUAAAAoLTgqLzckLzsmLDUrMDYpLzcqMDooLjcqLjgpLjUpLjcpLTYkLDgrMTYiKS8pMDonKzopMTYxNjwmKzkiJzkjJjMmKzgmLzgnLjUwMTktNDYnKj8pLzcaHCIWGRwnLjkoLjgeJD+rVehhAAAAI3RSTlMAbUFbDldiTVAnc19ZVEUFempkYx0UCYd1PDcwC5RORyMjGhuz37YAAACISURBVBjTbcxXCsMwEATQsb1SrO4muabe/5BZGQKC+P0MDLuDP6SrwjJB9nWhMRgIpRvki+MT4H3MA1woKG0CRnp2G6iFJDlPwD4CtOjAF7Gu/AGhENbhkc4XjH0cAKGPc+MNtm/IctEnlFq4rmHONS5nZbmzQoh7Z2YOK9LvUmFFgUzr7YRLXy5UBfV2oz6WAAAAAElFTkSuQmCC">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/monokai.css">
-	<?php if (empty(EDITOR_THEME) === false) : ?>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/theme/<?= EDITOR_THEME ?>.css">
-	<?php endif; ?>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+	<?php foreach ($assets[LOCAL_ASSETS ? 'local' : 'cdn']['css'] as $value) : ?>
+		<?php if (empty($value) === false) : ?>
+			<link rel="stylesheet" href="<?= $value ?>">
+		<?php endif; ?>
+	<?php endforeach; ?>
+
 	<style type="text/css">
 		h1,
 		h1 a,
@@ -784,30 +861,13 @@ function json_success($message, $params = [])
 			margin-right: 10px;
 		}
 	</style>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/javascript/javascript.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/css/css.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/php/php.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/xml/xml.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/htmlmixed/htmlmixed.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/markdown/markdown.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/clike/clike.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.10.2/jshint.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/lint.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/javascript-lint.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/json-lint.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/lint/css-lint.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/search.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/searchcursor.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/search/jump-to-line.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/addon/dialog/dialog.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+
+	<?php foreach ($assets[LOCAL_ASSETS ? 'local' : 'cdn']['js'] as $value) : ?>
+		<?php if (empty($value) === false) : ?>
+			<script src="<?= $value ?>"></script>
+		<?php endif; ?>
+	<?php endforeach; ?>
+
 	<script type="text/javascript">
 		var editor,
 			modes = {
