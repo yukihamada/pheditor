@@ -761,8 +761,10 @@ function json_success($message, $params = [])
 			border-color: transparent;
 		}
 
-		body.dark-mode .dark-mode-button {
+		body.dark-mode .dark-mode-button,
+		body.dark-mode .help-button {
 			background: #445760 !important;
+			border: 0;
 		}
 
 		body.dark-mode .text-muted {
@@ -776,6 +778,10 @@ function json_success($message, $params = [])
 		body.dark-mode .modal-header,
 		body.dark-mode .modal-footer {
 			border: 0;
+		}
+
+		.help-button {
+			margin-right: 10px;
 		}
 	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -1107,7 +1113,7 @@ function json_success($message, $params = [])
 			$(window).resize();
 
 			$(document).bind("keyup", function(event) {
-				if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+				if (event.ctrlKey && event.altKey) {
 					if (event.keyCode == 78) {
 						$(".dropdown .new-file").click();
 						event.preventDefault();
@@ -1490,6 +1496,10 @@ function json_success($message, $params = [])
 			if (getCookie("dark_mode") == "1") {
 				$(".dark-mode-button input").click();
 			}
+
+			$(".help-button").click(function() {
+				$("#helpModal").modal("show");
+			});
 		});
 	</script>
 </head>
@@ -1544,6 +1554,8 @@ function json_success($message, $params = [])
 				</div>
 
 				<div class="float-right">
+					<button type="button" class="btn btn-sm btn-light help-button"><i class="fa fa-question-circle"></i></button>
+
 					<div class="custom-control custom-switch dark-mode-button bg-light">
 						<input type="checkbox" class="custom-control-input" id="dark_mode">
 						<label class="custom-control-label" for="dark_mode"><i class="far fa-moon"></i></label>
@@ -1641,6 +1653,49 @@ function json_success($message, $params = [])
 			</div>
 		</div>
 	</form>
+
+	<div class="modal fade" id="helpModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title">Keyboard Shortcuts</h6>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<?php
+
+						$keyboard_shortcuts = [
+							['New File', ['Ctrl', 'Alt / &#8997;', 'N']],
+							['Save File', ['Ctrl', 'Alt / &#8997;', 'S']],
+							['Find', ['Ctrl / &#8984;', 'F']],
+							['Find next', ['Ctrl / &#8984;', 'G']],
+							['Find previous', ['Ctrl / &#8984;', 'Shift', 'G']],
+							['Replace', ['Ctrl / &#8984;', 'Shift', 'F']],
+							['Replace all', ['Ctrl / &#8984;', 'Shift', 'R']],
+							['Persistent search', ['Alt / &#8997;', 'F']],
+							['Go to line', ['Alt / &#8997;', 'G']],
+							['Toggle Terminal', ['Ctrl', 'Alt / &#8997;', 'L']],
+							['Terminal history', ['Up', 'Down']],
+							['Open file menu', ['Esc (x2)']],
+							['Switch between file manager and editor', ['Esc']],
+						];
+
+						foreach ($keyboard_shortcuts as $value) :
+
+						?>
+							<div class="col-12 col-sm-6 mb-1">
+								<div class="row">
+									<div class="col-6 text-right"><kbd><?= implode('</kbd> <kbd>', $value[1]) ?></kbd></div>
+									<div class="col-6"><?= $value[0] ?></div>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </body>
 
