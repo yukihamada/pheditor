@@ -26,6 +26,20 @@ or just upload `pheditor.php` to your web host (and/or rename it as you wish).
 
 ---
 
+### Local assets
+
+By default Pheditor uses CDN to load required libraries but also it is possible to load assets from local directory.
+
+For using local assets follow these steps:
+
+1. Edit `pheditor.php` and change `LOCAL_ASSETS` definition to `true`.
+
+`define('LOCAL_ASSETS', true);`
+
+2. Run `npm i` to install required dependencies.
+
+---
+
 **NOTES**:
 1. The default password is `admin`. Please change the password after install or first login.
 2. As the script gives permission to edit files, it is recommended to keep the address secret or protected depending on the web-server you are using.
