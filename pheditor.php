@@ -186,9 +186,9 @@ if (count($permissions) < 1) {
 if (isset($_GET['path'])) {
 	header('Content-Type: application/json');
 
-	$dir = rtrim(MAIN_DIR . DS . trim($_GET['path'], '/'), '/');
+	$dir = realpath(rtrim(MAIN_DIR . DS . trim($_GET['path'], '/'), '/'));
 
-	if (file_exists($dir) === false || is_dir($dir) === false) {
+	if (file_exists($dir) === false || is_dir($dir) === false || strpos($dir, MAIN_DIR) !== 0) {
 		die('[]');
 	}
 
@@ -252,6 +252,13 @@ if (isset($_GET['path'])) {
 	die(json_encode($list, JSON_UNESCAPED_UNICODE));
 } else if (isset($_POST['action'])) {
 	header('Content-Type: application/json');
+
+	$post_token = $_POST['token'] ?? null;
+	$session_token = $_SESSION['pheditor_token'] ?? null;
+
+	if (empty($post_token) || $post_token != $session_token) {
+		die(json_error('Invalid token. Please reload the page.'));
+	}
 
 	if (isset($_POST['file']) && empty($_POST['file']) === false) {
 		$_POST['file'] = urldecode($_POST['file']);
@@ -546,7 +553,7 @@ if (isset($_GET['path'])) {
 function redirect($address = null)
 {
 	if (empty($address)) {
-		$address = $_SERVER['PHP_SELF'];
+		$address = $_SERVER['SCRIPT_NAME'];
 	}
 
 	header('Location: ' . $address);
@@ -606,6 +613,8 @@ function json_success($message, $params = [])
 		'message' => $message,
 	], $params), JSON_UNESCAPED_UNICODE);
 }
+
+$_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 
 ?>
 <!DOCTYPE html>
@@ -878,7 +887,8 @@ function json_success($message, $params = [])
 			last_keyup_press = false,
 			last_keyup_double = false,
 			terminal_history = 1,
-			jstree_hashchange = true;
+			jstree_hashchange = true,
+			token = "<?= $_SESSION['pheditor_token'] ?>";
 
 		function alertBox(title, message, color) {
 			iziToast.show({
@@ -948,7 +958,7 @@ function json_success($message, $params = [])
 				core: {
 					data: {
 						url: function(node) {
-							return node.id == "#" ? "<?= $_SERVER['PHP_SELF'] ?>?path=" : "<?= $_SERVER['PHP_SELF'] ?>?path=" + node.a_attr["data-dir"];
+							return node.id == "#" ? "<?= $_SERVER['SCRIPT_NAME'] ?>?path=" : "<?= $_SERVER['SCRIPT_NAME'] ?>?path=" + node.a_attr["data-dir"];
 						}
 					}
 				},
@@ -981,7 +991,7 @@ function json_success($message, $params = [])
 				var password = prompt("Please enter new password:");
 
 				if (password != null && password.length > 0) {
-					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+					$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 						action: "password",
 						password: password
 					}, function(data) {
@@ -1005,8 +1015,9 @@ function json_success($message, $params = [])
 							file = path.substring(0, path.lastIndexOf("/") + 1) + name;
 						}
 
-						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 							action: "save",
+							token: token,
 							file: file,
 							data: ""
 						}, function(data) {
@@ -1041,8 +1052,9 @@ function json_success($message, $params = [])
 							dir = path.substring(0, path.lastIndexOf("/") + 1) + name;
 						}
 
-						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 							action: "make-dir",
+							token: token,
 							dir: dir
 						}, function(data) {
 							alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
@@ -1068,8 +1080,9 @@ function json_success($message, $params = [])
 				if (path.length > 0) {
 					$("#digest").val(sha512(data));
 
-					$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+					$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 						action: "save",
+						token: token,
 						file: path,
 						data: data
 					}, function(data) {
@@ -1091,8 +1104,9 @@ function json_success($message, $params = [])
 
 				if (path.length > 0) {
 					if (confirm("Are you sure to delete this file?")) {
-						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 							action: "delete",
+							token: token,
 							path: path
 						}, function(data) {
 							alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
@@ -1126,8 +1140,9 @@ function json_success($message, $params = [])
 					var name = prompt("Please enter new name:", new_file_name);
 
 					if (name != null && name.length > 0) {
-						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 							action: "rename",
+							token: token,
 							path: path,
 							name: name
 						}, function(data) {
@@ -1247,8 +1262,9 @@ function json_success($message, $params = [])
 							if (file.length > 0) {
 								$("#loading").fadeIn(250);
 
-								$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+								$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 									action: "open",
+									token: token,
 									file: encodeURIComponent(hash)
 								}, function(data) {
 									if (data.error == true) {
@@ -1348,7 +1364,7 @@ function json_success($message, $params = [])
 				}
 
 				$.ajax({
-					url: "<?= $_SERVER['PHP_SELF'] ?>",
+					url: "<?= $_SERVER['SCRIPT_NAME'] ?>",
 					data: formdata ? formdata : form.serialize(),
 					cache: false,
 					contentType: false,
@@ -1399,8 +1415,9 @@ function json_success($message, $params = [])
 
 						setCookie("terminal_commands", JSON.stringify(terminal_commands));
 
-						$.post("<?= $_SERVER['PHP_SELF'] ?>", {
+						$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 							action: "terminal",
+							token: token,
 							command: _val,
 							dir: terminal_dir
 						}, function(data) {
@@ -1621,7 +1638,7 @@ function json_success($message, $params = [])
 						<label class="custom-control-label" for="dark_mode"><i class="far fa-moon"></i></label>
 					</div>
 
-					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary"><i class="fas fa-key"></i></a> &nbsp; <?php } ?><a href="<?= $_SERVER['PHP_SELF'] ?>?logout=1" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt"></i></a>
+					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary"><i class="fas fa-key"></i></a> &nbsp; <?php } ?><a href="<?= $_SERVER['SCRIPT_NAME'] ?>?logout=1" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt"></i></a>
 				</div>
 			</div>
 		</div>
@@ -1678,6 +1695,7 @@ function json_success($message, $params = [])
 
 	<form method="post">
 		<input name="action" type="hidden" value="upload-file">
+		<input name="token" type="hidden" value="<?= $_SESSION['pheditor_token'] ?>">
 		<input name="destination" type="hidden" value="">
 
 		<div class="modal fade" id="uploadFileModal">
