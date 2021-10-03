@@ -993,6 +993,7 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 				if (password != null && password.length > 0) {
 					$.post("<?= $_SERVER['SCRIPT_NAME'] ?>", {
 						action: "password",
+						token: token,
 						password: password
 					}, function(data) {
 						alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
