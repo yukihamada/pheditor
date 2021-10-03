@@ -143,6 +143,8 @@ session_start();
 if (empty(PASSWORD) === false && (isset($_SESSION['pheditor_admin']) === false || $_SESSION['pheditor_admin'] !== true)) {
 	if (isset($_POST['pheditor_password']) && empty($_POST['pheditor_password']) === false) {
 		if (hash('sha512', $_POST['pheditor_password']) === PASSWORD) {
+			session_regenerate_id(true);
+
 			$_SESSION['pheditor_admin'] = true;
 
 			redirect();
@@ -171,6 +173,8 @@ if (empty(PASSWORD) === false && (isset($_SESSION['pheditor_admin']) === false |
 
 if (isset($_GET['logout'])) {
 	unset($_SESSION['pheditor_admin']);
+
+	session_destroy();
 
 	redirect();
 }
