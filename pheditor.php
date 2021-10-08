@@ -140,12 +140,15 @@ session_set_cookie_params(86400, dirname($_SERVER['REQUEST_URI']));
 session_name('pheditor');
 session_start();
 
-if (empty(PASSWORD) === false && (isset($_SESSION['pheditor_admin']) === false || $_SESSION['pheditor_admin'] !== true)) {
+if (empty(PASSWORD) === false && (isset($_SESSION['pheditor_admin'], $_SESSION['pheditor_password']) === false || $_SESSION['pheditor_admin'] !== true || $_SESSION['pheditor_password'] != PASSWORD)) {
 	if (isset($_POST['pheditor_password']) && empty($_POST['pheditor_password']) === false) {
-		if (hash('sha512', $_POST['pheditor_password']) === PASSWORD) {
+		$password_hash = hash('sha512', $_POST['pheditor_password']);
+
+		if ($password_hash === PASSWORD) {
 			session_regenerate_id(true);
 
 			$_SESSION['pheditor_admin'] = true;
+			$_SESSION['pheditor_password'] = $password_hash;
 
 			redirect();
 		} else {
@@ -360,10 +363,11 @@ if (isset($_GET['path'])) {
 
 			if (isset($_POST['password']) && empty($_POST['password']) === false) {
 				$contents = file(__FILE__);
+				$password_hash = hash('sha512', $_POST['password']);
 
 				foreach ($contents as $key => $line) {
 					if (strpos($line, 'define(\'PASSWORD\'') !== false) {
-						$contents[$key] = "define('PASSWORD', '" . hash('sha512', $_POST['password']) . "');\n";
+						$contents[$key] = "define('PASSWORD', '" . $password_hash . "');\n";
 
 						break;
 					}
@@ -374,6 +378,10 @@ if (isset($_GET['path'])) {
 				}
 
 				file_put_contents(__FILE__, implode($contents));
+
+				$_SESSION['pheditor_password'] = $password_hash;
+
+				session_regenerate_id(true);
 
 				echo json_success('Password changed successfully');
 			}
