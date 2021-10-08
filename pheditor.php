@@ -192,7 +192,7 @@ if (isset($_GET['path'])) {
 
 	$dir = realpath(rtrim(MAIN_DIR . DS . trim($_GET['path'], '/'), '/'));
 
-	if (file_exists($dir) === false || is_dir($dir) === false || strpos($dir, MAIN_DIR) !== 0) {
+	if ($dir === false || check_path($dir) !== true) {
 		die('[]');
 	}
 
@@ -380,7 +380,7 @@ if (isset($_GET['path'])) {
 			break;
 
 		case 'delete':
-			if (isset($_POST['path']) && file_exists(MAIN_DIR . $_POST['path'])) {
+			if (isset($_POST['path']) && file_exists(MAIN_DIR . $_POST['path']) && check_path(MAIN_DIR . $_POST['path'])) {
 				$path = MAIN_DIR . $_POST['path'];
 
 				if ($_POST['path'] == '/') {
@@ -400,6 +400,10 @@ if (isset($_GET['path'])) {
 						echo json_success('Directory deleted successfully');
 					}
 				} else {
+					if (empty(PATTERN_FILES) === false && !preg_match(PATTERN_FILES, basename($_POST['path']))) {
+						die(json_error('Invalid file patterna'));
+					}
+
 					file_to_history($path);
 
 					if (is_writable($path)) {
@@ -616,6 +620,21 @@ function json_success($message, $params = [])
 		'error' => false,
 		'message' => $message,
 	], $params), JSON_UNESCAPED_UNICODE);
+}
+
+function check_path($path, $check_existence = true)
+{
+	if ($check_existence === false) {
+		$path = dirname($path);
+	}
+
+	$real_path = realpath($path);
+
+	if (strpos($real_path, MAIN_DIR) === 0) {
+		return true;
+	}
+
+	return false;
 }
 
 $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
