@@ -175,9 +175,11 @@ if (empty(PASSWORD) === false && (isset($_SESSION['pheditor_admin'], $_SESSION['
 }
 
 if (isset($_GET['logout'])) {
-	unset($_SESSION['pheditor_admin']);
+	if ($_GET['logout'] == $_SESSION['pheditor_token']) {
+		unset($_SESSION['pheditor_admin']);
 
-	session_destroy();
+		session_destroy();
+	}
 
 	redirect();
 }
@@ -1670,7 +1672,7 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 						<label class="custom-control-label" for="dark_mode"><i class="far fa-moon"></i></label>
 					</div>
 
-					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary"><i class="fas fa-key"></i></a> &nbsp; <?php } ?><a href="<?= $_SERVER['SCRIPT_NAME'] ?>?logout=1" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt"></i></a>
+					<?php if (in_array('changepassword', $permissions)) { ?><a href="javascript:void(0);" class="change-password btn btn-sm btn-primary"><i class="fas fa-key"></i></a> &nbsp; <?php } ?><a href="<?= $_SERVER['SCRIPT_NAME'] ?>?logout=<?= $_SESSION['pheditor_token'] ?>" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt"></i></a>
 				</div>
 			</div>
 		</div>
