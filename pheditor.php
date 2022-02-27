@@ -902,6 +902,16 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 		.help-button {
 			margin-right: 10px;
 		}
+
+		.heading-alert {
+			border-radius: 0;
+		}
+
+		.heading-alert a.change-password {
+			color: inherit;
+			font-weight: bold;
+			text-decoration: underline;
+		}
 	</style>
 
 	<?php foreach ($assets[LOCAL_ASSETS ? 'local' : 'cdn']['js'] as $value) : ?>
@@ -1616,6 +1626,9 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 </head>
 
 <body>
+	<?php if (PASSWORD == hash('sha512', 'admin')) : ?>
+		<div class="heading-alert alert alert-warning"><i class="fa fa-info-circle"></i><span class="ml-2">You are using Pheditor with default password. Please click <a href="javascript:void(0);" class="change-password">here</a> to change password after installation.</span></div>
+	<?php endif; ?>
 
 	<div class="container-fluid">
 
