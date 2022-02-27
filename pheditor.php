@@ -1040,6 +1040,12 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 						password: password
 					}, function(data) {
 						alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
+
+						if (data.error === false) {
+							setTimeout(function(){
+								location.reload();
+							}, 1000);
+						}
 					});
 				}
 			});
