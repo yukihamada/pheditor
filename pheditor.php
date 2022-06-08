@@ -977,7 +977,7 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 				mode: "application/x-httpd-php",
 				indentUnit: 4,
 				indentWithTabs: true,
-				lineWrapping: true,
+				lineWrapping: <?= WORD_WRAP ?>,
 				gutters: ["CodeMirror-lint-markers"],
 				lint: true
 			});
@@ -1042,7 +1042,7 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 						alertBox(data.error ? "Error" : "Success", data.message, data.error ? "red" : "green");
 
 						if (data.error === false) {
-							setTimeout(function(){
+							setTimeout(function() {
 								location.reload();
 							}, 1000);
 						}
