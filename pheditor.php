@@ -212,7 +212,7 @@ if (isset($_GET['path'])) {
 		}
 
 		if (is_dir($dir . DS . $file) && (empty(PATTERN_DIRECTORIES) || preg_match(PATTERN_DIRECTORIES, $file))) {
-			$dir_path = str_replace(MAIN_DIR, '', $dir . DS . $file . DS);
+			$dir_path = str_replace([MAIN_DIR, DS], ['', '/'], $dir . DS . $file . DS);
 
 			$list[] = [
 				'text' => $file,
@@ -227,7 +227,7 @@ if (isset($_GET['path'])) {
 				],
 			];
 		} else if (empty(PATTERN_FILES) || preg_match(PATTERN_FILES, $file)) {
-			$file_path = str_replace(MAIN_DIR, '', $dir . DS . $file);
+			$file_path = str_replace([MAIN_DIR, DS], ['', '/'], $dir . DS . $file);
 
 			$list[] = [
 				'text' => $file,
