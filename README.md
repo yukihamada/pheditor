@@ -17,6 +17,13 @@ Pheditor is a single-file editor and file manager written in PHP.
 
 ---
 
+### Requirements
+
+1. Web server (Nginx, Apache, or etc)
+2. PHP 7.2 or above
+
+---
+
 ### Install & Usage
 
 Install using composer:
