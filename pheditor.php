@@ -1307,7 +1307,7 @@ $_SESSION['pheditor_token'] = bin2hex(random_bytes(32));
 								$(".dropdown").find(".delete, .rename").removeClass("disabled");
 							}
 						} else {
-							var file = $("a[data-file='" + hash + "']");
+							var file = $("a[data-file='" + decodeURIComponent(hash) + "']");
 
 							if (file.length > 0) {
 								$("#loading").fadeIn(250);
